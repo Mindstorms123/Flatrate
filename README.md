@@ -87,19 +87,6 @@ mit echten Zeiten, Steigen und neuer Ankunftszeit. Ein Tipp darauf baut die Reis
 | --- | --- | --- |
 | <img src="docs/screenshots/04-navigation.png" width="250" alt="Fußweg-Karte in der App" /> | <img src="docs/screenshots/05-reise.png" width="250" alt="Live-Begleitung der Reise" /> | <img src="docs/screenshots/06-tickets.png" width="250" alt="Ticketverwaltung" /> |
 
-## Installation (Android)
-
-1. Die aktuelle [`Flatrate-v1.0.0.apk`](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) herunterladen (siehe auch [Releases](../../releases)).
-2. Auf dem Handy öffnen und die Installation aus unbekannten Quellen erlauben.
-3. Beim ersten Start Benachrichtigungen und Standort erlauben (beides optional, aber
-   Echtzeit-Hinweise und standortnahe Haltestellen brauchen es).
-
-Die Debug-APK ist zum Testen und zur eigenen Nutzung gedacht. Für Google Play wären eine
-dauerhafte Signatur und ein `.aab`-Paket nötig.
-
-Die Web-Version ist eine PWA: „Zum Startbildschirm hinzufügen" genügt, Tickets bleiben
-offline verfügbar.
-
 ## Datenquellen
 
 | Zweck | Quelle |
