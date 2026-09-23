@@ -170,7 +170,8 @@ Uhrzeit, damit die Fahrt nachvollziehbar ist.
 
 ## Lizenz
 
-[MIT](LICENSE) – nutze, ändere und veröffentliche den Code frei.
+https://creativecommons.org/licenses/by-nc/4.0/
+Copyright (c) 2026 Flatrate Leon Wüste.
 
 Kartendaten © OpenStreetMap-Mitwirkende (ODbL). Fahrplandaten über Transitous stammen von
 den jeweiligen Verkehrsverbünden. „Deutschlandticket" ist nur als beschreibender Begriff
