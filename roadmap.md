@@ -32,4 +32,4 @@
 - [x] Android-Erststart: Benachrichtigungs- und Standortberechtigung zuverlässig nacheinander abfragen
 - [x] Ausgewählte Anschlussalternative beim Hinterlegen erhalten und Haltestellensuche direkt nach Standortfreigabe aktualisieren
 
-- [ ] iPhone-Nutzung über „Zum Home-Bildschirm hinzufügen": Web-Variante mit gleichem Funktionsstand wie die Android-App kostenlos über GitHub Pages veröffentlichen (Unterpfad-fähig, offline, iOS-Meta) und Anleitung in der README
+- [x] iPhone-Nutzung über „Zum Home-Bildschirm hinzufügen": Web-Variante kostenlos über GitHub Pages veröffentlicht (https://mindstorms123.github.io/Flatrate/), Unterpfad-fähig, offline, iOS-Meta, Anleitung in der README, Auto-Deploy-Workflow
