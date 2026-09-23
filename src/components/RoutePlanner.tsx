@@ -19,6 +19,10 @@ import { mergeJourneyOptions, type JourneyOption } from "@/lib/journey-merge";
 import { loadSavedRoutes, routeDirections, routeStopOptions, routeAccessPoints, type SavedRoute } from "@/lib/saved-routes";
 import { saveJourneyDetail } from "@/lib/journey-detail";
 import { loadPlannerSearch, savePlannerSearch } from "@/lib/search-session";
+import { computeAccessWalk, withAccessWalks, type AccessWalk } from "@/lib/walk";
+import type { Journey } from "@/lib/transit";
+
+type PlannerOption = JourneyOption & { base?: Journey };
 
 function placeValue(p: Place) {
   return p.isStop ? p.id : `${p.lat},${p.lon}`;
@@ -36,7 +40,7 @@ export function RoutePlanner({ title }: { title: string }) {
   const [selected, setSelected] = useState<SavedRoute | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [shift, setShift] = useState(0);
-  const [options, setOptions] = useState<JourneyOption[]>([]);
+  const [options, setOptions] = useState<PlannerOption[]>([]);
   const restored = useRef(false);
   const plan = planJourneys;
   const navigate = useNavigate();
@@ -89,7 +93,30 @@ export function RoutePlanner({ title }: { title: string }) {
           }
         }),
       );
-      return mergeJourneyOptions(results.flat());
+      const merged = mergeJourneyOptions(results.flat());
+      const access = routeAccessPoints(route);
+      if (!access.start && !access.end) return merged as PlannerOption[];
+      const cache = new Map<string, Promise<AccessWalk | null>>();
+      const walk = (key: string, fn: () => Promise<AccessWalk | null>) => {
+        if (!cache.has(key)) cache.set(key, fn().catch(() => null));
+        return cache.get(key)!;
+      };
+      const withWalks = await Promise.all(
+        merged.map(async (option): Promise<PlannerOption> => {
+          const rides = option.journey.legs;
+          const first = rides[0];
+          const last = rides.at(-1);
+          const [inWalk, outWalk] = await Promise.all([
+            access.start && first ? walk(`in-${first.from.lat},${first.from.lon}`, () => computeAccessWalk(access.start!, first.from, access.start!)) : null,
+            access.end && last ? walk(`out-${last.to.lat},${last.to.lon}`, () => computeAccessWalk(last.to, access.end!, access.end!)) : null,
+          ]);
+          return { ...option, base: option.journey, journey: withAccessWalks(option.journey, inWalk, outWalk) };
+        }),
+      );
+      return withWalks.sort(
+        (a, b) => new Date(a.journey.endTime).getTime() - new Date(b.journey.endTime).getTime() ||
+          new Date(b.journey.startTime).getTime() - new Date(a.journey.startTime).getTime(),
+      );
     },
   });
 
@@ -115,13 +142,13 @@ export function RoutePlanner({ title }: { title: string }) {
     runSearch(selected, next);
   };
 
-  const openDetails = (option: JourneyOption) => {
+  const openDetails = (option: PlannerOption) => {
     if (!selected) return;
     const destinationOptions = routeStopOptions(selected).destinations;
     const access = routeAccessPoints(selected);
     savePlannerSearch({ selected, selectedKey, shift, options, scrollY: window.scrollY });
     saveJourneyDetail({
-      journey: option.journey,
+      journey: option.base ?? option.journey,
       origin: { value: placeValue(option.from), name: option.from.name },
       destination: { value: placeValue(option.to), name: option.to.name },
       allowLongDistance: selected.allowLongDistance,
