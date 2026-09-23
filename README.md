@@ -8,7 +8,7 @@ Open-Source-App für Deutschlandticket-, Jobticket- und Semesterticket-Nutzer:
 Verbindungen in Echtzeit, Anschluss-Rettung bei Verspätung, Fußweg-Navigation auf
 OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web%20(PWA)-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
