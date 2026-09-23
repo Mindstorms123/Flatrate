@@ -214,7 +214,7 @@ export function showAlert(alert: TripAlert) {
       const notification = new Notification(alert.title, {
         body: alert.body,
         tag: alert.key,
-        icon: "/icons/icon-512.png",
+        icon: `${import.meta.env.BASE_URL || "/"}icons/icon-512.png`,
       });
       notification.onclick = () => {
         window.focus();

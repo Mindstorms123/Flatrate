@@ -7,11 +7,15 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const mobile = process.env["CAPACITOR_BUILD"] === "1";
+// Static GitHub Pages build: PAGES_BASE="/<repo>/" (must start and end with "/").
+const pagesBase = process.env["PAGES_BASE"];
+const staticBuild = mobile || Boolean(pagesBase);
 
 export default defineConfig({
-  ...(mobile ? { nitro: false } : {}),
+  ...(staticBuild ? { nitro: false } : {}),
+  ...(pagesBase ? { vite: { base: pagesBase } } : {}),
   tanstackStart: {
-    ...(mobile
+    ...(staticBuild
       ? { spa: { enabled: true, maskPath: "/", prerender: { outputPath: "/index.html" } } }
       : {}),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "build:android:web": "CAPACITOR_BUILD=1 vite build",
     "android:sync": "bun run build:android:web && cap sync android",
-    "android:apk": "bun run android:sync && cd android && ./gradlew assembleDebug"
+    "android:apk": "bun run android:sync && cd android && ./gradlew assembleDebug",
+    "build:pages": "PAGES_BASE=${PAGES_BASE:-/Flatrate/} vite build && PAGES_BASE=${PAGES_BASE:-/Flatrate/} node scripts/pages-postbuild.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"

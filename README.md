@@ -9,10 +9,10 @@ Verbindungen in Echtzeit, Anschluss-Rettung bei Verspätung, Fußweg-Navigation 
 OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 
 [![CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web%20(PWA)-informational)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iPhone%20%7C%20Web-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
-[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
+[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
 
 </div>
 
@@ -142,6 +142,45 @@ src/components/NavMap.tsx     OpenStreetMap-Karte mit Fußweg-Routing
 src/routes/journey.tsx        Detailansicht inkl. Anschluss-Rettung
 ```
 
+## Installieren
+
+### Android
+
+[Flatrate-v1.0.0.apk herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk)
+und auf dem Handy öffnen. Android fragt einmal, ob Apps aus dieser Quelle installiert
+werden dürfen. Beim ersten Start fragt die App nach Benachrichtigungen und Standort.
+
+### iPhone / iPad (Web-App auf dem Home-Bildschirm)
+
+Für iOS gibt es keine Installationsdatei – Apple erlaubt das nur über den App Store.
+Flatrate läuft auf dem iPhone deshalb als Web-App, die sich wie eine App ablegen lässt:
+
+1. **<https://mindstorms123.github.io/Flatrate/>** in **Safari** öffnen
+   (Chrome auf dem iPhone kann das nicht).
+2. Auf **Teilen** (Pfeil nach oben) tippen.
+3. **Zum Home-Bildschirm** wählen und bestätigen.
+
+Danach liegt Flatrate mit eigenem Symbol auf dem Home-Bildschirm, startet im Vollbild ohne
+Safari-Leiste und zeigt Tickets samt Kontrollcode auch ohne Internet. Der Funktionsumfang
+ist derselbe wie in der Android-App.
+
+Zwei Unterschiede bleiben:
+
+- Benachrichtigungen funktionieren auf dem iPhone nur ab iOS 16.4 und nur, wenn die App
+  über „Zum Home-Bildschirm" abgelegt wurde – nicht im normalen Safari-Tab.
+- Wallet-Dateien nimmt iOS nicht per Teilen-Menü an; importiere `.pkpass`-Dateien auf dem
+  iPhone über „Neues Ticket hinzufügen" → Datei auswählen oder über einen Download-Link.
+
+### Jeder andere Browser
+
+<https://mindstorms123.github.io/Flatrate/> funktioniert auch auf Android, Windows, macOS
+und Linux. In Chrome/Edge lässt sich die App über das Installieren-Symbol in der
+Adressleiste ablegen.
+
+Die Web-Version wird von GitHub Pages ausgeliefert und bei jeder Änderung am Code
+automatisch neu gebaut (`.github/workflows/pages.yml`). Es gibt keinen eigenen Server:
+alle Fahrplan- und Routing-Anfragen gehen direkt vom Gerät an Transitous bzw. OSRM.
+
 ## Selbst bauen
 
 Voraussetzungen: [Bun](https://bun.sh) (oder npm), für Android zusätzlich JDK 21 und das
@@ -160,6 +199,13 @@ Android-APK:
 echo "sdk.dir=/pfad/zum/android-sdk" > android/local.properties
 bun run android:apk    # Web-Build + cap sync + gradlew assembleDebug
 # Ergebnis: android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Statische Web-Version (das, was auf GitHub Pages liegt):
+
+```sh
+PAGES_BASE=/Flatrate/ bun run build:pages
+# Ergebnis: dist/client – beliebig statisch hostbar
 ```
 
 ## Mitmachen

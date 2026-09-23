@@ -1,7 +1,9 @@
 /* Flatrate service worker: offline ticket view + wallet-file hand-off. */
-const CACHE = "flatrate-v1";
+const CACHE = "flatrate-v2";
 const SHARED = "flatrate-shared-pass";
-const SHELL = ["/", "/tickets", "/trip"];
+/** Deploy base, e.g. "/" or "/Flatrate/" on GitHub Pages. */
+const BASE = new URL(self.registration.scope).pathname;
+const SHELL = [BASE, `${BASE}tickets`, `${BASE}trip`];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -48,25 +50,25 @@ async function storeSharedPass(request) {
           },
         }),
       );
-      return Response.redirect("/tickets?shared=1", 303);
+      return Response.redirect(`${BASE}tickets?shared=1`, 303);
     }
   } catch {
     /* fall through */
   }
-  return Response.redirect("/tickets?shared=failed", 303);
+  return Response.redirect(`${BASE}tickets?shared=failed`, 303);
 }
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  if (request.method === "POST" && url.pathname === "/share-pass") {
+  if (request.method === "POST" && url.pathname === `${BASE}share-pass`) {
     event.respondWith(storeSharedPass(request));
     return;
   }
 
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/_serverFn/") || url.pathname.startsWith("/api/")) return;
+  if (url.pathname.startsWith(`${BASE}_serverFn/`) || url.pathname.startsWith(`${BASE}api/`)) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
@@ -82,8 +84,8 @@ self.addEventListener("fetch", (event) => {
           const cache = await caches.open(CACHE);
           return (
             (await cache.match(new Request(url.pathname))) ??
-            (await cache.match("/tickets")) ??
-            (await cache.match("/")) ??
+            (await cache.match(`${BASE}tickets`)) ??
+            (await cache.match(BASE)) ??
             new Response("Offline", { status: 503 })
           );
         }

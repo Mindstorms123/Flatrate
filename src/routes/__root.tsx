@@ -17,6 +17,9 @@ import { registerServiceWorker } from "@/lib/pwa";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
+/** Deploy base path, "/" normally and "/<repo>/" on GitHub Pages. */
+const BASE = import.meta.env.BASE_URL || "/";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -97,6 +100,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0b1220" },
       { name: "mobile-web-app-capable", content: "yes" },
+      // iOS: full-screen when added to the home screen.
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Flatrate" },
     ],
     links: [
       {
@@ -109,9 +116,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=DM+Sans:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "apple-touch-icon", href: "/icons/icon-512.png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: `${BASE}favicon.png`, type: "image/png" },
+      { rel: "apple-touch-icon", href: `${BASE}icons/icon-512.png` },
+      { rel: "manifest", href: `${BASE}manifest.webmanifest` },
     ],
   }),
 

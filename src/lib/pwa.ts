@@ -8,7 +8,8 @@ export function registerServiceWorker(): void {
   if (typeof window === "undefined") return;
   if (Capacitor.isNativePlatform()) return;
   if (!("serviceWorker" in navigator)) return;
-  void navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
+  const base = import.meta.env.BASE_URL || "/";
+  void navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => undefined);
 }
 
 export type IncomingPass = { bytes: Uint8Array; name: string };
