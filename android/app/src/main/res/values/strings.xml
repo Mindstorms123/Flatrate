@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Flatrate</string>
+    <string name="title_activity_main">Flatrate</string>
+    <string name="package_name">app.flatrate.mobility</string>
+    <string name="custom_url_scheme">app.flatrate.mobility</string>
+</resources>

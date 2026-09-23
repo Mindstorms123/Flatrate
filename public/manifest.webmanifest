@@ -1,0 +1,37 @@
+{
+  "name": "Flatrate – ÖPNV mit dem Deutschlandticket",
+  "short_name": "Flatrate",
+  "description": "Verbindungen, Live-Anschlüsse und dein Deutschlandticket – auch offline.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "lang": "de",
+  "icons": [
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "share_target": {
+    "action": "/share-pass",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "files": [
+        {
+          "name": "ticket",
+          "accept": ["application/vnd.apple.pkpass", ".pkpass", "application/zip"]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/tickets",
+      "accept": {
+        "application/vnd.apple.pkpass": [".pkpass"]
+      }
+    }
+  ]
+}
