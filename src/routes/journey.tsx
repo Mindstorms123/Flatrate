@@ -244,7 +244,7 @@ function JourneyDetailPage() {
                   <div className="rounded-lg border border-border bg-card p-3">
                     <p className="font-semibold">{MODE_LABEL[leg.mode]} · {formatDuration(leg.duration)}</p>
                     <p className="mt-1 text-sm text-muted-foreground">Von {leg.from.name} nach {leg.to.name}{leg.distance ? ` · ${Math.round(leg.distance)} m` : ""}</p>
-                    <NavLink from={leg.from} to={leg.to} label="Navigation öffnen" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary" />
+                    <NavLink from={index === 0 ? null : leg.from} to={leg.to} label="Navigation öffnen" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary" />
                   </div>
                 ) : (
                   <div className="rounded-lg border border-border bg-card p-3">

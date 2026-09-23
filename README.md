@@ -12,11 +12,17 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iPhone%20%7C%20Web-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
-[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.3.0.apk) · [Pixel-Watch-App](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-PixelWatch-v1.3.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
+[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.4.0.apk) · [Pixel-Watch-App](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-PixelWatch-v1.4.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
 
 </div>
 
 ---
+
+## Neu in v1.4.0
+
+- **Fußweg zur ersten Haltestelle startet am aktuellen Standort** – Karte, Route und Gehminuten werden live von dort berechnet.
+- **Pixel-Watch-App:** haptisches Feedback beim Drehen der Krone zwischen den Etappen; irreführender „Doppelt pinchen"-Hinweis entfernt.
+- Downloads: `releases/Flatrate-v1.4.0.apk` (Handy), `releases/Flatrate-PixelWatch-v1.4.0.apk` (Uhr).
 
 ## Was Flatrate macht
 
@@ -140,7 +146,7 @@ src/routes/journey.tsx        Detailansicht inkl. Anschluss-Rettung
 
 ### Android
 
-[Flatrate-v1.3.0.apk herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.3.0.apk)
+[Flatrate-v1.4.0.apk herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.4.0.apk)
 und auf dem Handy öffnen. Android fragt einmal, ob Apps aus dieser Quelle installiert
 werden dürfen. Beim ersten Start fragt die App nach Benachrichtigungen und Standort.
 
@@ -162,7 +168,7 @@ Ohne Play Store muss sie einmalig per Computer installiert werden:
    ```sh
    adb pair <IP:Kopplungs-Port> <Code>
    adb connect <IP:Port>
-   adb install Flatrate-PixelWatch-v1.3.0.apk
+   adb install Flatrate-PixelWatch-v1.4.0.apk
    ```
 4. Flatrate einmal auf der Uhr öffnen und Benachrichtigungen erlauben.
 

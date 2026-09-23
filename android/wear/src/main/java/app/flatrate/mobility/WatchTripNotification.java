@@ -54,34 +54,39 @@ public final class WatchTripNotification {
         }
         String critical = criticalText(endsAt);
 
+        // Kept deliberately simple: promoted/critical-text flags crash the watch's notification shade.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_trip_tracker)
                 .setContentTitle(title)
-                .setContentText(body)
+                .setContentText(critical + " · " + body)
                 .setContentIntent(contentIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setSilent(true)
                 .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setProgress(max, now, false)
-                .setRequestPromotedOngoing(true)
-                .setShortCriticalText(critical)
-                .setWhen(endsAt > 0 ? endsAt : System.currentTimeMillis())
-                .setShowWhen(true)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(body));
+                .setProgress(max, now, false);
 
-        OngoingActivity ongoing = new OngoingActivity.Builder(context, ID, builder)
-                .setStaticIcon(R.drawable.ic_trip_tracker)
-                .setTouchIntent(contentIntent)
-                .setStatus(new Status.Builder()
-                        .addTemplate(critical + " · " + title)
-                        .build())
-                .build();
-        ongoing.apply(context);
+        try {
+            OngoingActivity ongoing = new OngoingActivity.Builder(context, ID, builder)
+                    .setStaticIcon(R.drawable.ic_trip_tracker)
+                    .setTouchIntent(contentIntent)
+                    .setStatus(new Status.Builder().addTemplate(statusText(critical, title, body)).build())
+                    .build();
+            ongoing.apply(context);
+        } catch (Exception ignored) {
+            // Watch face chip is optional.
+        }
 
         Notification notification = builder.build();
         manager.notify(ID, notification);
+    }
+
+    /** Short chip text: remaining time plus where to go next. */
+    static String statusText(String critical, String title, String body) {
+        String next = title == null ? "" : title;
+        if (next.length() > 28) next = next.substring(0, 27) + "…";
+        return critical + " · " + next;
     }
 
     static void cancel(Context context) {
