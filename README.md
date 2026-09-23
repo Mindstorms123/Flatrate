@@ -12,7 +12,7 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web%20(PWA)-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
-[Android-APK herunterladen](../../releases/latest) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
+[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
 
 </div>
 
@@ -89,7 +89,7 @@ mit echten Zeiten, Steigen und neuer Ankunftszeit. Ein Tipp darauf baut die Reis
 
 ## Installation (Android)
 
-1. Die aktuelle `.apk` unter [Releases](../../releases/latest) herunterladen.
+1. Die aktuelle [`Flatrate-v1.0.0.apk`](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) herunterladen (siehe auch [Releases](../../releases)).
 2. Auf dem Handy öffnen und die Installation aus unbekannten Quellen erlauben.
 3. Beim ersten Start Benachrichtigungen und Standort erlauben (beides optional, aber
    Echtzeit-Hinweise und standortnahe Haltestellen brauchen es).
