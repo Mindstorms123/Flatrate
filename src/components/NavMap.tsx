@@ -3,11 +3,10 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Footprints, Loader2, LocateFixed, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchFootRoute, type FootRoute } from "@/lib/walk";
 import { geoUri, googleWalkingUrl, isNativeApp, osmWalkingUrl, type Coords, type NavTarget } from "@/lib/geo";
 
-type Route = { coords: [number, number][]; distance: number; duration: number };
-
-const FOOT_ROUTER = "https://routing.openstreetmap.de/routed-foot/route/v1/foot";
+type Route = FootRoute;
 
 function metres(a: Coords, b: Coords) {
   const r = 6371000;
@@ -20,23 +19,6 @@ function metres(a: Coords, b: Coords) {
 
 function formatDistance(m: number) {
   return m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1).replace(".", ",")} km`;
-}
-
-async function fetchFootRoute(from: Coords, to: Coords): Promise<Route | null> {
-  const url = `${FOOT_ROUTER}/${from.lon},${from.lat};${to.lon},${to.lat}?overview=full&geometries=geojson`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const data = (await res.json()) as {
-    code?: string;
-    routes?: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[];
-  };
-  const route = data.routes?.[0];
-  if (data.code !== "Ok" || !route) return null;
-  return {
-    coords: route.geometry.coordinates.map(([lon, lat]) => [lat, lon] as [number, number]),
-    distance: route.distance,
-    duration: route.duration,
-  };
 }
 
 function dot(color: string, ring: string) {
@@ -63,7 +45,8 @@ export function NavMap({ to, from }: { to: NavTarget; from?: NavTarget | null | 
   const target = useMemo<Coords>(() => ({ lat: to.lat, lon: to.lon }), [to.lat, to.lon]);
   // A planned walking leg must always be routed between its two stops. The
   // live position is only the fallback for "walk to this stop" actions.
-  const start = from ? { lat: from.lat, lon: from.lon } : position;
+  const [fromMe, setFromMe] = useState(false);
+  const start = from && !fromMe ? { lat: from.lat, lon: from.lon } : position;
 
   // map setup
   useEffect(() => {
@@ -117,6 +100,7 @@ export function NavMap({ to, from }: { to: NavTarget; from?: NavTarget | null | 
       })
       .catch(() => setStatus("error"));
   }, [start?.lat, start?.lon, target.lat, target.lon]);
+  useEffect(() => { lastRouted.current = null; }, [fromMe]);
 
   // draw route + me
   useEffect(() => {
@@ -181,12 +165,22 @@ export function NavMap({ to, from }: { to: NavTarget; from?: NavTarget | null | 
             </span>
           )}
         </div>
+        {from && (
+          <Button
+            type="button"
+            variant={fromMe ? "default" : "outline"}
+            className="h-11 w-full justify-start gap-2"
+            onClick={() => setFromMe((v) => !v)}
+          >
+            <LocateFixed size={16} /> {fromMe ? `Wieder ab ${from.name}` : "Ab meinem Standort"}
+          </Button>
+        )}
         <div className="grid gap-2 sm:grid-cols-3">
           <Button
             type="button"
             variant="outline"
             className="h-11 justify-start gap-2"
-            onClick={() => openExternal(osmWalkingUrl(to, from ?? (position ? { ...position, name: "Standort" } : null)))}
+            onClick={() => openExternal(osmWalkingUrl(to, (from && !fromMe ? from : position ? { ...position, name: "Standort" } : null)))}
           >
             <MapPin size={16} className="text-primary" /> OpenStreetMap
           </Button>
@@ -194,7 +188,7 @@ export function NavMap({ to, from }: { to: NavTarget; from?: NavTarget | null | 
             type="button"
             variant="outline"
             className="h-11 justify-start gap-2"
-            onClick={() => openExternal(googleWalkingUrl(to, from ?? (position ? { ...position, name: "Standort" } : null)))}
+            onClick={() => openExternal(googleWalkingUrl(to, (from && !fromMe ? from : position ? { ...position, name: "Standort" } : null)))}
           >
             <MapPin size={16} className="text-primary" /> Google Maps
           </Button>

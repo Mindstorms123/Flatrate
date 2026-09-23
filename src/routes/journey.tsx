@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, Clock3, LoaderCircle, RotateCcw, Route as RouteIcon, Ticket, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Footprints, Info, LocateFixed, X, ArrowRight, Check, Clock3, LoaderCircle, RotateCcw, Route as RouteIcon, Ticket, TriangleAlert } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { computeAccessWalk, withAccessWalks, type AccessWalk } from "@/lib/walk";
+import { loadLastPosition, type NavTarget } from "@/lib/geo";
 import { Button } from "@/components/ui/button";
 import { LineBadge, ModeIcon } from "@/components/ModeBadge";
 import { saveActiveTrip } from "@/lib/active-trip";
@@ -128,16 +130,72 @@ function TransferAlternatives({ detail, risk, onChoose }: { detail: JourneyDetai
 }
 
 
+function WalkRow({ walk, onRemove }: { walk: AccessWalk; onRemove: () => void }) {
+  return (
+    <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground" onClick={onRemove}>
+      <X size={13} /> Fußweg {walk.place.name} entfernen
+    </Button>
+  );
+}
+
 function JourneyDetailPage() {
   const [detail, setDetail] = useState<JourneyDetail | null>(null);
   const [originalDetail, setOriginalDetail] = useState<JourneyDetail | null>(null);
   const navigate = useNavigate();
+  const [walkIn, setWalkIn] = useState<AccessWalk | null>(null);
+  const [walkOut, setWalkOut] = useState<AccessWalk | null>(null);
+  const [walkBusy, setWalkBusy] = useState<"in" | "out" | null>(null);
+  const [walkError, setWalkError] = useState<string | null>(null);
 
   useEffect(() => {
     const loaded = loadJourneyDetail();
     setDetail(loaded);
     setOriginalDetail(loaded);
   }, []);
+
+  const firstStop = detail?.journey.legs[0]?.from;
+  const lastStop = detail?.journey.legs.at(-1)?.to;
+
+  const addWalk = async (side: "in" | "out", place: NavTarget) => {
+    const stop = side === "in" ? firstStop : lastStop;
+    if (!stop) return;
+    setWalkBusy(side);
+    setWalkError(null);
+    try {
+      const walk = side === "in" ? await computeAccessWalk(place, stop, place) : await computeAccessWalk(stop, place, place);
+      if (!walk) throw new Error();
+      if (side === "in") setWalkIn(walk);
+      else setWalkOut(walk);
+    } catch {
+      setWalkError("Fußweg konnte nicht berechnet werden.");
+    } finally {
+      setWalkBusy(null);
+    }
+  };
+
+  const walkFromHere = () => {
+    const fallback = () => {
+      const last = loadLastPosition();
+      if (last) void addWalk("in", { ...last, name: "Dein Standort" });
+      else setWalkError("Standort nicht verfügbar.");
+    };
+    if (!navigator.geolocation) return fallback();
+    setWalkBusy("in");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => void addWalk("in", { lat: pos.coords.latitude, lon: pos.coords.longitude, name: "Dein Standort" }),
+      () => { setWalkBusy(null); fallback(); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+    );
+  };
+
+  // Saved home / work points are included automatically.
+  const autoKey = `${firstStop?.lat},${firstStop?.lon}|${lastStop?.lat},${lastStop?.lon}`;
+  useEffect(() => {
+    if (!detail) return;
+    if (detail.accessStart) void addWalk("in", detail.accessStart);
+    if (detail.accessEnd) void addWalk("out", detail.accessEnd);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoKey, Boolean(detail)]);
 
   const chooseAlternative = (option: JourneyOption) => {
     setDetail((current) => {
@@ -175,9 +233,12 @@ function JourneyDetailPage() {
     );
   }
 
-  const { journey } = detail;
-  const risks = getTransferRisks(journey);
-  const changed = originalDetail !== null && originalDetail.journey.id !== journey.id;
+  const baseJourney = detail.journey;
+  const journey = withAccessWalks(baseJourney, walkIn, walkOut);
+  const offset = walkIn ? 1 : 0;
+  const risks = getTransferRisks(baseJourney).map((r) => ({ ...r, legIndex: r.legIndex + offset }));
+  const baseRisk = (r: TransferRisk) => ({ ...r, legIndex: r.legIndex - offset });
+  const changed = originalDetail !== null && originalDetail.journey.id !== baseJourney.id;
 
 
   const store = () => {
@@ -188,7 +249,7 @@ function JourneyDetailPage() {
       origin: detail.origin,
       destination: detail.destination,
       allowLongDistance: detail.allowLongDistance,
-      preserveSelectedJourney: changed,
+      preserveSelectedJourney: changed || Boolean(walkIn || walkOut),
     });
     void navigate({ to: "/trip" });
   };
@@ -227,6 +288,30 @@ function JourneyDetailPage() {
       </header>
 
 
+      <div className="mt-4 space-y-2">
+        {!walkIn ? (
+          <div className="rounded-lg border border-border bg-card/60 p-3">
+            <p className="flex gap-2 text-xs text-muted-foreground">
+              <Info size={14} className="mt-0.5 shrink-0 text-primary" />
+              <span>Zeiten gelten ab der Haltestelle {firstStop?.name} – plane rechtzeitig deinen Weg dorthin ein.</span>
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button type="button" variant="outline" size="sm" className="h-9" disabled={walkBusy === "in"} onClick={walkFromHere}>
+                {walkBusy === "in" ? <LoaderCircle className="animate-spin" /> : <LocateFixed />} Fußweg ab hier
+              </Button>
+              {detail.accessStart && (
+                <Button type="button" variant="outline" size="sm" className="h-9" disabled={walkBusy === "in"} onClick={() => void addWalk("in", detail.accessStart!)}>
+                  <Footprints /> Ab {detail.accessStart.name}
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <WalkRow walk={walkIn} onRemove={() => setWalkIn(null)} />
+        )}
+        {walkError && <p className="text-xs text-destructive">{walkError}</p>}
+      </div>
+
       <ol className="py-5">
         {journey.legs.map((leg, index) => {
           const risk = risks.find((item) => item.legIndex === index);
@@ -244,7 +329,7 @@ function JourneyDetailPage() {
                   <div className="rounded-lg border border-border bg-card p-3">
                     <p className="font-semibold">{MODE_LABEL[leg.mode]} · {formatDuration(leg.duration)}</p>
                     <p className="mt-1 text-sm text-muted-foreground">Von {leg.from.name} nach {leg.to.name}{leg.distance ? ` · ${Math.round(leg.distance)} m` : ""}</p>
-                    <NavLink from={index === 0 ? null : leg.from} to={leg.to} label="Navigation öffnen" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary" />
+                    <NavLink from={leg.from} to={leg.to} label="Navigation öffnen" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary" />
                   </div>
                 ) : (
                   <div className="rounded-lg border border-border bg-card p-3">
@@ -271,12 +356,19 @@ function JourneyDetailPage() {
                     <span>{risk.status === "missed" ? "Anschluss voraussichtlich verpasst" : `Nur ${risk.availableMinutes} Minuten zum Umsteigen`}</span>
                   </div>
                 )}
-                {alternativesForRisk && <TransferAlternatives detail={detail} risk={alternativesForRisk} onChoose={chooseAlternative} />}
+                {alternativesForRisk && <TransferAlternatives detail={detail} risk={baseRisk(alternativesForRisk)} onChoose={chooseAlternative} />}
               </div>
             </li>
           );
         })}
       </ol>
+
+      {detail.accessEnd && !walkOut && (
+        <Button type="button" variant="outline" size="sm" className="mb-4 h-9" disabled={walkBusy === "out"} onClick={() => void addWalk("out", detail.accessEnd!)}>
+          <Footprints /> Fußweg bis {detail.accessEnd.name} einrechnen
+        </Button>
+      )}
+      {walkOut && <div className="mb-4"><WalkRow walk={walkOut} onRemove={() => setWalkOut(null)} /></div>}
 
       <div className="fixed inset-x-0 bottom-[4.7rem] z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <div className="mx-auto max-w-2xl">

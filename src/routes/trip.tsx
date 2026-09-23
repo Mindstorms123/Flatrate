@@ -374,9 +374,9 @@ function TripPage() {
                 <div className="min-w-0 flex-1">
                   {leg.mode === "WALK" ? (
                     <p className="text-sm text-muted-foreground">
-                      {i === 0 ? `Fußweg ab deinem Standort zu ${leg.to.name}` : `${Math.round(leg.duration / 60)} min Fußweg zu ${leg.to.name}`}
+                      {`${Math.max(1, Math.round(leg.duration / 60))} min Fußweg von ${leg.from.name} zu ${leg.to.name}`}
                       <NavLink
-                        from={i === 0 ? null : leg.from}
+                        from={leg.from}
                         to={leg.to}
                         label="Navigation"
                         iconSize={12}

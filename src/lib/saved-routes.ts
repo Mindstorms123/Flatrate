@@ -1,4 +1,5 @@
 import type { Place } from "@/lib/transit";
+import type { NavTarget } from "@/lib/geo";
 
 export type SavedRouteKind = "favorite" | "commute";
 
@@ -13,6 +14,12 @@ export type SavedRoute = {
   altFrom?: Place[];
   /** Further stops that also work as a destination for this route. */
   altTo?: Place[];
+  /** Home address – walk from here to the first stop (optional). */
+  home?: Place;
+  /** Work/school address – walk from the last stop to here (optional). */
+  work?: Place;
+  /** True for the generated return trip (work → home). */
+  reversed?: boolean;
 };
 
 const KEY = "flatrate.saved-routes.v1";
@@ -51,6 +58,7 @@ export function reverseSavedRoute(route: SavedRoute): SavedRoute {
     to: route.from,
     altFrom: asPlaces(route.altTo),
     altTo: asPlaces(route.altFrom),
+    reversed: !route.reversed,
   };
 }
 
@@ -82,4 +90,13 @@ export function routeStopOptions(route: SavedRoute): { origins: Place[]; destina
     origins: dedupe([route.from, ...asPlaces(route.altFrom)]),
     destinations: dedupe([route.to, ...asPlaces(route.altTo)]),
   };
+}
+
+/** Personal start/end points (home, work/school) for the walk to and from the stops. */
+export function routeAccessPoints(route: SavedRoute): { start?: NavTarget; end?: NavTarget } {
+  const home = route.home ? { lat: route.home.lat, lon: route.home.lon, name: "Zuhause" } : undefined;
+  const work = route.work ? { lat: route.work.lat, lon: route.work.lon, name: route.kind === "commute" ? "Arbeit/Schule" : "Zielort" } : undefined;
+  const start = route.reversed ? work : home;
+  const end = route.reversed ? home : work;
+  return { ...(start ? { start } : {}), ...(end ? { end } : {}) };
 }

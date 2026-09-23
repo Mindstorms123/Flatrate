@@ -1,0 +1,36 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "app.flatrate.mobility"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        // Same app ID and signature as the phone app, required for the Wear data layer.
+        applicationId "app.flatrate.mobility"
+        minSdkVersion 30
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1021
+        versionName "1.5-wear"
+    }
+    signingConfigs {
+        flatrate {
+            storeFile file('../flatrate-signing.keystore')
+            storePassword 'flatrate-open'
+            keyAlias 'flatrate'
+            keyPassword 'flatrate-open'
+        }
+    }
+    buildTypes {
+        debug { signingConfig signingConfigs.flatrate }
+        release { signingConfig signingConfigs.flatrate; minifyEnabled false }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core:$androidxCoreVersion"
+    implementation "com.google.android.gms:play-services-wearable:19.0.0"
+    implementation "androidx.wear:wear-ongoing:1.0.0"
+}

@@ -16,7 +16,7 @@ import { LineBadge } from "@/components/ModeBadge";
 import { planJourneys } from "@/lib/transit.functions";
 import { formatDuration, formatTime, type Place } from "@/lib/transit";
 import { mergeJourneyOptions, type JourneyOption } from "@/lib/journey-merge";
-import { loadSavedRoutes, routeDirections, routeStopOptions, type SavedRoute } from "@/lib/saved-routes";
+import { loadSavedRoutes, routeDirections, routeStopOptions, routeAccessPoints, type SavedRoute } from "@/lib/saved-routes";
 import { saveJourneyDetail } from "@/lib/journey-detail";
 import { loadPlannerSearch, savePlannerSearch } from "@/lib/search-session";
 
@@ -118,6 +118,7 @@ export function RoutePlanner({ title }: { title: string }) {
   const openDetails = (option: JourneyOption) => {
     if (!selected) return;
     const destinationOptions = routeStopOptions(selected).destinations;
+    const access = routeAccessPoints(selected);
     savePlannerSearch({ selected, selectedKey, shift, options, scrollY: window.scrollY });
     saveJourneyDetail({
       journey: option.journey,
@@ -127,6 +128,8 @@ export function RoutePlanner({ title }: { title: string }) {
       fromPlace: option.from,
       toPlace: option.to,
       destinationOptions,
+      ...(access.start ? { accessStart: access.start } : {}),
+      ...(access.end ? { accessEnd: access.end } : {}),
     });
     void navigate({ to: "/journey" });
   };

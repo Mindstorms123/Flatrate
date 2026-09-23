@@ -1,4 +1,5 @@
 import type { Journey, Place } from "./transit";
+import type { NavTarget } from "./geo";
 
 export type JourneyDetail = {
   journey: Journey;
@@ -9,6 +10,9 @@ export type JourneyDetail = {
   toPlace?: Place;
   /** Every destination stop accepted for this saved commute direction. */
   destinationOptions?: Place[];
+  /** Saved home / work points for the walk to the first and from the last stop. */
+  accessStart?: NavTarget;
+  accessEnd?: NavTarget;
 };
 
 const KEY = "flatrate.journey-detail.v1";

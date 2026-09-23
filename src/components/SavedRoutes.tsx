@@ -27,12 +27,17 @@ function StopOptions({ route, onUpdate }: { route: SavedRoute; onUpdate: (r: Sav
   const [open, setOpen] = useState(false);
   const [altFrom, setAltFrom] = useState<Place[]>(route.altFrom ?? []);
   const [altTo, setAltTo] = useState<Place[]>(route.altTo ?? []);
+  const [home, setHome] = useState<Place | null>(route.home ?? null);
+  const [work, setWork] = useState<Place | null>(route.work ?? null);
+  const commute = route.kind === "commute";
   const extra = (route.altFrom?.length ?? 0) + (route.altTo?.length ?? 0);
 
   const changeOpen = (next: boolean) => {
     if (next) {
       setAltFrom(route.altFrom ?? []);
       setAltTo(route.altTo ?? []);
+      setHome(route.home ?? null);
+      setWork(route.work ?? null);
     }
     setOpen(next);
   };
@@ -125,6 +130,30 @@ function StopOptions({ route, onUpdate }: { route: SavedRoute; onUpdate: (r: Sav
             />
             {list("altTo", altTo)}
           </section>
+
+          <section className="space-y-3 border-t border-border pt-5">
+            <div>
+              <p className="text-sm font-semibold">Fußweg mit einrechnen (optional)</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Dann plant die App den Weg {commute ? "von zu Hause zur Haltestelle und von der Haltestelle zur Arbeit/Schule" : "vom Startort zur Haltestelle und zum Zielort"} automatisch mit ein.
+              </p>
+            </div>
+            {([
+              [commute ? "Zuhause" : "Startort", home, setHome],
+              [commute ? "Arbeit / Schule" : "Zielort", work, setWork],
+            ] as const).map(([label, value, set]) => (
+              <div key={label} className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <PlaceInput label={label} value={value} onChange={set} placeholder="Adresse suchen" />
+                </div>
+                {value && (
+                  <Button type="button" variant="ghost" size="icon" aria-label={`${label} entfernen`} onClick={() => set(null)}>
+                    <X size={16} />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </section>
         </div>
 
         <DrawerFooter className="border-t border-border bg-background pb-[max(1rem,env(safe-area-inset-bottom))]">
@@ -132,7 +161,8 @@ function StopOptions({ route, onUpdate }: { route: SavedRoute; onUpdate: (r: Sav
             type="button"
             className="h-12 w-full text-base"
             onClick={() => {
-              onUpdate({ ...route, altFrom, altTo });
+              const { home: _h, work: _w, ...rest } = route;
+              onUpdate({ ...rest, altFrom, altTo, ...(home ? { home } : {}), ...(work ? { work } : {}) });
               setOpen(false);
             }}
           >
