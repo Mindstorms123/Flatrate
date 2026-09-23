@@ -2,6 +2,7 @@
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { liveNotificationSupported } from "@/lib/trip-live";
 import {
   delayMinutes,
   formatTime,
@@ -146,11 +147,15 @@ export function buildTripAlerts(params: {
     });
   });
 
+  // On Android the ongoing live notification already shows all of this, so the
+  // routine reminders stay silent there and only real disruptions are pushed.
+  const routineQuiet = liveNotificationSupported();
+
   const minutesToStart = Math.round((new Date(journey.startTime).getTime() - t) / 60_000);
-  if (progress.phase === "before_start" && minutesToStart >= 0 && minutesToStart <= 10) {
+  if (!routineQuiet && progress.phase === "before_start" && minutesToStart >= 0 && minutesToStart <= 10) {
     const firstLeg = journey.legs[0];
     alerts.push({
-      key: `start:${minutesToStart <= 5 ? "5" : "10"}`,
+      key: "start",
       level: "warn",
       title: `Losgehen – Reise startet in ${minutesToStart} min`,
       body: firstLeg
@@ -165,6 +170,7 @@ export function buildTripAlerts(params: {
   const nextLeg = progress.nextIndex >= 0 ? journey.legs[progress.nextIndex] : undefined;
 
   if (
+    !routineQuiet &&
     nextLeg &&
     nextLeg.mode !== "WALK" &&
     progress.minutesToNext >= 0 &&

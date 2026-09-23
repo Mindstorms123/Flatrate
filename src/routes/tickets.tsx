@@ -1,3 +1,4 @@
+import { DataBackup } from "@/components/DataBackup";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -625,6 +626,8 @@ function Tickets() {
           </div>
         </div>
       )}
+
+      <DataBackup />
     </div>
   );
 }

@@ -12,7 +12,7 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iPhone%20%7C%20Web-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
-[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
+[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.3.0.apk) · [Pixel-Watch-App](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-PixelWatch-v1.3.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
 
 </div>
 
@@ -58,7 +58,14 @@ mit echten Zeiten, Steigen und neuer Ankunftszeit. Ein Tipp darauf baut die Reis
 - Reise hinterlegen und live verfolgen: aktuelles Verkehrsmittel, aktuelle Haltestelle,
   verbleibende Halte, nächster Umstieg mit Steig
 - „Ich bin hier" zum Neuplanen unterwegs
-- Benachrichtigungen: 10 Minuten vor Reisebeginn, bei Verspätung ab einstellbarer
+- **Android-Live-Update**: eine einzige dauerhafte Live-Anzeige oben in der
+  Benachrichtigungsleiste mit animiertem Fortschrittsbalken, Etappen pro Fahrt/Fußweg,
+  Umstiegspunkten, Restzeit-Chip und aufklappbarem Reiseverlauf (✓ erledigt, ▶ aktuell).
+  Läuft im Hintergrund, bei geschlossener App und ausgeschaltetem Display weiter
+  (native Android-16-Darstellung, auf älteren Geräten kompatible Fortschrittsanzeige)
+- **Pixel Watch / Wear OS**: eigene Begleit-App zeigt die aktive Reise live auf der Uhr –
+  Fortschritt, aktueller Schritt, Restzeit und Symbol auf dem Zifferblatt
+- Benachrichtigungen nur noch bei echten Störungen: 10 Minuten vor Reisebeginn, bei Verspätung ab einstellbarer
   Schwelle, bei knappen/verpassten Umstiegen, Steigwechsel und Ausfall
 
 ### Navigation
@@ -133,9 +140,34 @@ src/routes/journey.tsx        Detailansicht inkl. Anschluss-Rettung
 
 ### Android
 
-[Flatrate-v1.0.0.apk herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.0.0.apk)
+[Flatrate-v1.3.0.apk herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.3.0.apk)
 und auf dem Handy öffnen. Android fragt einmal, ob Apps aus dieser Quelle installiert
 werden dürfen. Beim ersten Start fragt die App nach Benachrichtigungen und Standort.
+
+**Updates:** Ab v1.2 haben alle Versionen dieselbe feste Signatur – neue Versionen
+installieren sich einfach über die alte, Tickets und Einstellungen bleiben erhalten.
+Kommst du von v1.0/v1.1, einmalig vorher auf der Ticketseite „Sicherung speichern",
+alte App deinstallieren, neue installieren, „Sicherung zurückholen".
+
+### Pixel Watch / Wear OS (optional)
+
+Die Live-Anzeige des Handys wird von Wear OS nicht zuverlässig auf die Uhr gespiegelt.
+Dafür gibt es eine kleine Begleit-App, die die aktive Reise vom Handy übernimmt.
+Ohne Play Store muss sie einmalig per Computer installiert werden:
+
+1. Auf der Uhr: Einstellungen → System → Info → 7× auf „Build-Nummer" tippen.
+2. Einstellungen → Entwickleroptionen → „Debugging über WLAN" einschalten
+   (Uhr und Computer im selben WLAN). Dort „Neues Gerät koppeln" antippen.
+3. Am Computer mit den [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools):
+   ```sh
+   adb pair <IP:Kopplungs-Port> <Code>
+   adb connect <IP:Port>
+   adb install Flatrate-PixelWatch-v1.3.0.apk
+   ```
+4. Flatrate einmal auf der Uhr öffnen und Benachrichtigungen erlauben.
+
+Sobald auf dem Handy eine Reise hinterlegt ist, erscheint sie live auf der Uhr.
+Die Handy-App muss dafür v1.3 oder neuer sein.
 
 ### iPhone / iPad (Web-App auf dem Home-Bildschirm)
 
@@ -186,6 +218,10 @@ Android-APK:
 echo "sdk.dir=/pfad/zum/android-sdk" > android/local.properties
 bun run android:apk    # Web-Build + cap sync + gradlew assembleDebug
 # Ergebnis: android/app/build/outputs/apk/debug/app-debug.apk
+
+# Pixel-Watch-App
+cd android && ./gradlew :wear:assembleDebug
+# Ergebnis: android/wear/build/outputs/apk/debug/wear-debug.apk
 ```
 
 Statische Web-Version (das, was auf GitHub Pages liegt):

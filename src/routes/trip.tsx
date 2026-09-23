@@ -28,6 +28,7 @@ import {
   type ActiveTrip,
 } from "@/lib/active-trip";
 import { NavLink } from "@/components/NavLink";
+import { startLiveNotification, stopLiveNotification } from "@/lib/trip-live";
 import {
   CheckCircle2,
   MapPin,
@@ -161,7 +162,25 @@ function TripPage() {
     },
   });
 
-  if (!trip) {
+  // Live journey: one ongoing notification that keeps updating on its own, also
+  // with the app closed or the screen off.
+  const liveJourney: Journey | null = trip ? applyLegUpdates(planned ?? trip.journey, legs.data ?? []) : null;
+  const liveSignature = liveJourney
+    ? `${liveJourney.id}|${liveJourney.legs
+        .map((l) => `${l.from.time}${l.to.time}${l.from.track ?? ""}`)
+        .join(";")}`
+    : "";
+
+  useEffect(() => {
+    if (!liveJourney || new Date(liveJourney.endTime).getTime() < Date.now()) {
+      void stopLiveNotification();
+      return;
+    }
+    void startLiveNotification(liveJourney);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveSignature]);
+
+  if (!trip || !liveJourney) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 pb-16 pt-6">
         <h1 className="font-display text-2xl font-bold">Keine Reise hinterlegt</h1>
@@ -180,7 +199,7 @@ function TripPage() {
     );
   }
 
-  const journey: Journey = applyLegUpdates(planned ?? trip.journey, legs.data ?? []);
+  const journey: Journey = liveJourney;
   const progress = getTripProgress(journey, now);
   const risks = getTransferRisks(journey);
   const risk = risks[0];

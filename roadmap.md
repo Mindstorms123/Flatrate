@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Android-Live-Update mit animiertem Reisefortschritt und nativer Fortschrittsleiste
+
 - [x] Favoriten und Pendelstrecken lokal speichern, laden und löschen
 - [x] Verbindungen automatisch mit Live-Daten aktualisieren
 - [x] Knappe Umstiege erkennen und Alternativen direkt vorschlagen
@@ -33,3 +35,7 @@
 - [x] Ausgewählte Anschlussalternative beim Hinterlegen erhalten und Haltestellensuche direkt nach Standortfreigabe aktualisieren
 
 - [x] iPhone-Nutzung über „Zum Home-Bildschirm hinzufügen": Web-Variante kostenlos über GitHub Pages veröffentlicht (https://mindstorms123.github.io/Flatrate/), Unterpfad-fähig, offline, iOS-Meta, Anleitung in der README, Auto-Deploy-Workflow
+
+- [x] Android: dauerhafte Live-Benachrichtigung (Foreground-Service) mit Reiseverlauf, Umstiegen und Steigen; läuft im Hintergrund, bei geschlossener App und Display aus, spiegelt auf Smartwatch; Routine-Erinnerungen (Losgehen/Einsteigen) dort abgeschaltet
+
+- [x] Feste App-Signatur (android/flatrate-signing.keystore): neue Versionen installieren als Update, Tickets/Strecken/Einstellungen bleiben erhalten; zusätzlich Sicherung/Wiederherstellung als JSON auf der Ticketseite
