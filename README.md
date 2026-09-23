@@ -32,6 +32,12 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 - Karte zeigt Fußwege wieder zwischen den geplanten Punkten; optional per Button **„Ab meinem Standort“**.
 - Downloads: `releases/Flatrate-v1.5.0.apk` (Handy), `releases/Flatrate-PixelWatch-v1.5.0.apk` (Uhr). Installiert sich über v1.2+ ohne Datenverlust.
 
+## Neu in v1.6.0 – Karte lässt sich frei bewegen
+
+- Die Fußweg-Karte lässt sich jetzt frei verschieben und zoomen, ohne dass das Fenster mitwandert oder sich schließt. Schließen geht über den Griff oben.
+- Downloads: [`releases/Flatrate-v1.6.0.apk`](releases/Flatrate-v1.6.0.apk) (Handy), [`releases/Flatrate-PixelWatch-v1.6.0.apk`](releases/Flatrate-PixelWatch-v1.6.0.apk) (Pixel Watch)
+- Installiert sich über v1.2+ ohne Datenverlust.
+
 ## Was Flatrate macht
 
 Flatrate ist für Menschen gedacht, die mit einer Flatrate im Nahverkehr unterwegs sind.

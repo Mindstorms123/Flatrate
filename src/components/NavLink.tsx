@@ -28,7 +28,7 @@ export function NavLink({ to, from, label, className, iconSize = 14 }: NavLinkPr
       <button type="button" onClick={() => setOpen(true)} className={className}>
         <Navigation size={iconSize} /> {label}
       </button>
-      <Drawer open={open} onOpenChange={setOpen}>
+      <Drawer open={open} onOpenChange={setOpen} handleOnly>
         <DrawerContent className="h-[92dvh] max-h-[92dvh]">
           <DrawerHeader className="pb-2 text-left">
             <DrawerTitle>Fußweg zu {to.name}</DrawerTitle>

@@ -43,7 +43,10 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      <DrawerPrimitive.Handle
+        className="mx-auto mt-4 h-2 w-[100px] shrink-0 cursor-grab touch-none rounded-full bg-muted"
+        aria-label="Fenster greifen und schieben"
+      />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>

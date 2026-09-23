@@ -8,8 +8,8 @@ android {
         applicationId "app.flatrate.mobility"
         minSdkVersion 30
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1021
-        versionName "1.5-wear"
+        versionCode 1022
+        versionName "1.6-wear"
     }
     signingConfigs {
         flatrate {
