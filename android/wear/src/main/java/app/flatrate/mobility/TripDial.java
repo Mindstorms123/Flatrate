@@ -10,6 +10,8 @@ import android.text.TextPaint;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /** Full-screen watch dial: a half circle along the edge split into stages, the chosen stage in the middle. */
@@ -24,7 +26,9 @@ public class TripDial extends View {
     private final TextPaint head = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final TextPaint text = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final TextPaint meta = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+    private final TextPaint clock = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     private final RectF box = new RectF();
+    private static final DateTimeFormatter CLOCK_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private List<Stage> stages = new ArrayList<>();
     private int viewed = 0;
@@ -51,6 +55,10 @@ public class TripDial extends View {
         meta.setTextSize(12 * d);
         meta.setTextAlign(Paint.Align.CENTER);
         meta.setFakeBoldText(true);
+        clock.setColor(0xFFFFFFFF);
+        clock.setTextSize(24 * d);
+        clock.setTextAlign(Paint.Align.CENTER);
+        clock.setFakeBoldText(true);
     }
 
     private float d() { return getResources().getDisplayMetrics().density; }
@@ -162,12 +170,12 @@ public class TripDial extends View {
         if (stages.isEmpty()) {
             header = title; content = body; label = remaining;
         } else if (viewed == currentIndex()) {
-            header = title; content = body; label = remaining + " · Jetzt";
+            header = title; content = body; label = remaining + " · Live";
         } else {
             Stage s = stages.get(viewed);
             header = (viewed + 1) + " / " + stages.size() + (s.state == '✓' ? " · erledigt" : " · danach");
             content = s.text.length() > 2 ? s.text.substring(2) : s.text;
-            label = "Krone drehen: weiter";
+            label = "";
         }
         int alpha = Math.round(255 * fade);
         float offset = (1f - fade) * 14 * d;
@@ -180,8 +188,9 @@ public class TripDial extends View {
         StaticLayout bodyL = StaticLayout.Builder.obtain(content, 0, content.length(), text, (int) textWidth)
                 .setAlignment(Layout.Alignment.ALIGN_CENTER).setMaxLines(5).build();
         float total = 18 * d + headL.getHeight() + 6 * d + bodyL.getHeight();
-        float y = (h - total) / 2f + 10 * d + offset;
-        canvas.drawText(label, w / 2f, y + 12 * d, meta);
+        float y = (h - total) / 2f + 17 * d + offset;
+        canvas.drawText(LocalTime.now().format(CLOCK_FORMAT), w / 2f, y - 18 * d, clock);
+        if (!label.isEmpty()) canvas.drawText(label, w / 2f, y + 12 * d, meta);
         y += 18 * d;
         canvas.save();
         canvas.translate(left, y);
@@ -197,6 +206,14 @@ public class TripDial extends View {
         for (int i = 0; i < stages.size(); i += 1) {
             dot.setColor(i == viewed ? 0xFFFFFFFF : 0xFF475569);
             canvas.drawCircle(dx + i * spacing, dotsY, (i == viewed ? 3.5f : 2.5f) * d, dot);
+        }
+        if (!stages.isEmpty()) {
+            meta.setColor(0xFF94A3B8);
+            meta.setAlpha(220);
+            meta.setTextSize(10 * d);
+            canvas.drawText("Krone drehen", w / 2f, h - 10 * d, meta);
+            meta.setColor(0xFFF5C542);
+            meta.setTextSize(12 * d);
         }
         postInvalidateOnAnimation();
     }
