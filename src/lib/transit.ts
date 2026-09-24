@@ -100,6 +100,8 @@ export type Leg = {
   from: LegEnd;
   to: LegEnd;
   stops: number;
+  /** Intermediate stops with times (may be missing for older saved trips). */
+  intermediate?: { name: string; time: string; scheduledTime: string; track?: string }[];
 };
 
 export type Journey = {

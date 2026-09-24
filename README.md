@@ -18,6 +18,12 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 
 ---
 
+## Neu in v1.9.0 – Zwischenhalte in der Detailansicht
+
+- In den Verbindungsdetails lassen sich bei jedem Bus und Zug die Zwischenhalte aufklappen – mit Uhrzeit, Verspätung und Steig.
+- Downloads: [Flatrate-v1.9.0.apk](releases/Flatrate-v1.9.0.apk) (Handy) · [Flatrate-PixelWatch-v1.9.0.apk](releases/Flatrate-PixelWatch-v1.9.0.apk) (Uhr)
+- Installiert sich über v1.2+ ohne Datenverlust.
+
 ## Neu in v1.5.0
 
 - **Fußweg zur ersten Haltestelle startet am aktuellen Standort** – Karte, Route und Gehminuten werden live von dort berechnet.

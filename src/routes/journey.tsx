@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Footprints, Info, LocateFixed, X, ArrowRight, Check, Clock3, LoaderCircle, RotateCcw, Route as RouteIcon, Ticket, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ChevronDown, Footprints, Info, LocateFixed, X, ArrowRight, Check, Clock3, LoaderCircle, RotateCcw, Route as RouteIcon, Ticket, TriangleAlert } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { computeAccessWalk, withAccessWalks, type AccessWalk } from "@/lib/walk";
 import { loadLastPosition, type NavTarget } from "@/lib/geo";
@@ -344,10 +344,28 @@ function JourneyDetailPage() {
                       <EndTime end={leg.to} />
                       <div className="min-w-0"><span className="font-semibold">{leg.to.name}</span>{leg.to.track && <span className="ml-2 text-xs text-muted-foreground">Steig {leg.to.track}</span>}</div>
                     </div>
-                    <p className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      {leg.stops > 0 && <span>{leg.stops} Zwischenhalte</span>}
-                      {leg.agency && <span>{leg.agency}</span>}
-                    </p>
+                    {leg.intermediate && leg.intermediate.length > 0 ? (
+                      <details className="group mt-3">
+                        <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold text-primary">
+                          <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+                          {leg.intermediate.length} Zwischenhalte anzeigen
+                          {leg.agency && <span className="font-normal text-muted-foreground">· {leg.agency}</span>}
+                        </summary>
+                        <ol className="mt-2 space-y-1.5 border-l border-border pl-3">
+                          {leg.intermediate.map((s, i) => (
+                            <li key={`${s.name}-${i}`} className="grid grid-cols-[3.2rem_minmax(0,1fr)] gap-2 text-xs">
+                              <EndTime end={{ ...s, lat: 0, lon: 0 }} />
+                              <span className="min-w-0 truncate text-muted-foreground">{s.name}{s.track && ` · Steig ${s.track}`}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </details>
+                    ) : (
+                      <p className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        {leg.stops > 0 && <span>{leg.stops} Zwischenhalte</span>}
+                        {leg.agency && <span>{leg.agency}</span>}
+                      </p>
+                    )}
                   </div>
                 )}
                 {risk && (

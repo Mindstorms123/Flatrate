@@ -150,6 +150,12 @@ function mapLeg(l: MotisLeg): Leg {
     cancelled: Boolean(l.cancelled),
     dticket: l.mode === "WALK" ? true : isDticketMode(l.mode),
     stops: l.intermediateStops?.length ?? 0,
+    intermediate: ((l.intermediateStops ?? []) as MotisEnd[]).map((s) => ({
+      name: s.name,
+      time: s.departure ?? s.arrival ?? "",
+      scheduledTime: s.scheduledDeparture ?? s.scheduledArrival ?? s.departure ?? s.arrival ?? "",
+      ...(s.track ? { track: s.track } : {}),
+    })),
     from: {
       name: l.from.name === "START" ? "Start" : l.from.name,
       ...(l.from.stopId ? { stopId: l.from.stopId } : {}),
