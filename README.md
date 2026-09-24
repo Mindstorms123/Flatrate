@@ -38,6 +38,20 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 - Karte zeigt Fußwege wieder zwischen den geplanten Punkten; optional per Button **„Ab meinem Standort“**.
 - Downloads: `releases/Flatrate-v1.5.0.apk` (Handy), `releases/Flatrate-PixelWatch-v1.5.0.apk` (Uhr). Installiert sich über v1.2+ ohne Datenverlust.
 
+
+## v1.10.0 – Zwischenhalte und Alternativen in der Live-Ansicht
+
+- **Zwischenhalte in „Meine Reise":** Bei jedem Bus und Zug lassen sich die Zwischenhalte aufklappen – mit Uhrzeit, Verspätung und Steig. Vergangene Halte sind ausgegraut; bei der aktuellen Fahrt öffnet sich die Liste von selbst und zeigt „Du bist hier – nächster Halt …".
+- **Frühere Anschlüsse erkennen:** Wer durch Verspätung oder einen schnelleren Weg einen früheren Bus oder Zug erreicht hätte, bekommt in der Live-Ansicht einen Hinweis mit erreichbaren Alternativen – inklusive direktem Umswitchen.
+- **Zwischenhalte in der Detailansicht** (bereits seit 1.9) bleiben erhalten.
+
+### Downloads
+- **Android (Handy):** [Flatrate-v1.10.0.apk](releases/Flatrate-v1.10.0.apk)
+- **Pixel Watch:** [Flatrate-PixelWatch-v1.10.0.apk](releases/Flatrate-PixelWatch-v1.10.0.apk)
+- **Web-App (auch iPhone):** https://mindstorms123.github.io/Flatrate/
+
+Beide Apps installieren sich über Version 1.2 oder neuer, ohne dass Ticket oder Einstellungen verloren gehen.
+
 ## v1.8.0 – Keine versteckten Verbindungen mehr
 
 - Bei Pendelstrecken mit mehreren Haltestellen wurden Verbindungen bisher ausgeblendet, wenn eine andere auf dem Papier „besser" wirkte – dabei gingen teils genau die gewünschten Verbindungen verloren (z. B. ein durchgehender Zug ohne Umstieg).
