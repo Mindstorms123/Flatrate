@@ -32,24 +32,9 @@ function prefer(a: JourneyOption, b: JourneyOption): JourneyOption {
   return departAt(a) >= departAt(b) ? a : b;
 }
 
-/** b is at least as good in every aspect and strictly better in one. */
-function dominates(b: JourneyOption, a: JourneyOption): boolean {
-  const notWorse =
-    departAt(b) >= departAt(a) &&
-    arriveAt(b) <= arriveAt(a) &&
-    b.journey.transfers <= a.journey.transfers &&
-    b.journey.walkSeconds <= a.journey.walkSeconds + 120;
-  const better =
-    departAt(b) > departAt(a) ||
-    arriveAt(b) < arriveAt(a) ||
-    b.journey.transfers < a.journey.transfers;
-  return notWorse && better;
-}
-
 /**
  * Merges the results of all start/destination combinations into one clean list:
- * duplicates of the same ride and clearly worse options are dropped, the rest is
- * sorted by arrival time.
+ * only duplicates of the same ride are dropped, sorted by departure.
  */
 export function mergeJourneyOptions(options: JourneyOption[]): JourneyOption[] {
   const byRide = new Map<string, JourneyOption>();
@@ -60,7 +45,9 @@ export function mergeJourneyOptions(options: JourneyOption[]): JourneyOption[] {
     byRide.set(key, existing ? prefer(option, existing) : option);
   }
 
+  // No "dominance" pruning: a connection that looks slower on paper (e.g. a train
+  // from another stop) may be exactly the one the traveller wants, so every
+  // distinct ride stays visible.
   const unique = [...byRide.values()];
-  const pruned = unique.filter((a) => !unique.some((b) => b !== a && dominates(b, a)));
-  return pruned.sort((a, b) => arriveAt(a) - arriveAt(b) || departAt(b) - departAt(a));
+  return unique.sort((a, b) => departAt(a) - departAt(b) || arriveAt(a) - arriveAt(b));
 }

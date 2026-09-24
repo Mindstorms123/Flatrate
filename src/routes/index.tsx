@@ -435,6 +435,15 @@ function Index() {
             Ticket aus der Wallet importieren – dann hast du es unterwegs immer dabei.
           </Link>
         )}
+        <footer className="flex items-center justify-center gap-4 pt-6 text-xs text-muted-foreground">
+          <Link to="/impressum" className="transition-colors hover:text-foreground">
+            Impressum
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/datenschutz" className="transition-colors hover:text-foreground">
+            Datenschutz
+          </Link>
+        </footer>
       </div>
     </div>
   );

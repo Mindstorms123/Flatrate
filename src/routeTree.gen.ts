@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as TicketsRouteImport } from './routes/tickets'
 import { Route as TripRouteImport } from './routes/trip'
@@ -17,6 +19,16 @@ import { Route as TripRouteImport } from './routes/trip'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JourneyRoute = JourneyRouteImport.update({
@@ -37,12 +49,16 @@ const TripRoute = TripRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/journey': typeof JourneyRoute
   '/tickets': typeof TicketsRoute
   '/trip': typeof TripRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/journey': typeof JourneyRoute
   '/tickets': typeof TicketsRoute
   '/trip': typeof TripRoute
@@ -50,20 +66,32 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/journey': typeof JourneyRoute
   '/tickets': typeof TicketsRoute
   '/trip': typeof TripRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/journey' | '/tickets' | '/trip'
+  fullPaths:
+    '/' | '/datenschutz' | '/impressum' | '/journey' | '/tickets' | '/trip'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/journey' | '/tickets' | '/trip'
-  id: '__root__' | '/' | '/journey' | '/tickets' | '/trip'
+  to: '/' | '/datenschutz' | '/impressum' | '/journey' | '/tickets' | '/trip'
+  id:
+    | '__root__'
+    | '/'
+    | '/datenschutz'
+    | '/impressum'
+    | '/journey'
+    | '/tickets'
+    | '/trip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DatenschutzRoute: typeof DatenschutzRoute
+  ImpressumRoute: typeof ImpressumRoute
   JourneyRoute: typeof JourneyRoute
   TicketsRoute: typeof TicketsRoute
   TripRoute: typeof TripRoute
@@ -76,6 +104,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/journey': {
@@ -104,6 +146,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DatenschutzRoute: DatenschutzRoute,
+  ImpressumRoute: ImpressumRoute,
   JourneyRoute: JourneyRoute,
   TicketsRoute: TicketsRoute,
   TripRoute: TripRoute,

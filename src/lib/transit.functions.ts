@@ -155,6 +155,7 @@ function mapLeg(l: MotisLeg): Leg {
       time: s.departure ?? s.arrival ?? "",
       scheduledTime: s.scheduledDeparture ?? s.scheduledArrival ?? s.departure ?? s.arrival ?? "",
       ...(s.track ? { track: s.track } : {}),
+      ...(typeof s.lat === "number" && typeof s.lon === "number" ? { lat: s.lat, lon: s.lon } : {}),
     })),
     from: {
       name: l.from.name === "START" ? "Start" : l.from.name,

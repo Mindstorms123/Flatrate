@@ -28,6 +28,7 @@ import {
   type ActiveTrip,
 } from "@/lib/active-trip";
 import { NavLink } from "@/components/NavLink";
+import { AheadSuggestions, LiveStops } from "@/components/TripLiveExtras";
 import { startLiveNotification, stopLiveNotification } from "@/lib/trip-live";
 import {
   CheckCircle2,
@@ -325,6 +326,21 @@ function TripPage() {
         ) : null}
       </section>
 
+      {progress.phase !== "done" && (
+        <AheadSuggestions
+          trip={trip}
+          journey={journey}
+          now={now}
+          nextBoardIndex={
+            progress.ridingIndex >= 0 && journey.legs[progress.ridingIndex]?.mode !== "WALK"
+              ? -1
+              : journey.legs.findIndex(
+                  (l, idx) => idx >= Math.max(0, progress.ridingIndex, progress.nextIndex) && l.mode !== "WALK",
+                )
+          }
+        />
+      )}
+
       {risk && (
         <section className="mt-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="flex items-center gap-2 text-sm font-semibold">
@@ -426,6 +442,7 @@ function TripPage() {
                           )}
                         </p>
                       </div>
+                      <LiveStops leg={leg} now={now} defaultOpen={i === progress.ridingIndex} />
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Button
                           type="button"
