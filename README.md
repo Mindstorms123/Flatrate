@@ -18,6 +18,11 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 
 ---
 
+## Neu in v1.11.0 – Impressum und Datenschutz
+
+- Neue Seiten **Impressum** und **Datenschutzerklärung** in der App und der Web-Version (unten auf der Startseite verlinkt)
+- Datenschutzerklärung erklärt: lokale Speicherung aller Daten, Transitous (Fahrplandaten), OpenStreetMap/FOSSGIS (Karten), GitHub Pages (Hosting), Google Fonts
+
 ## Neu in v1.9.0 – Zwischenhalte in der Detailansicht
 
 - In den Verbindungsdetails lassen sich bei jedem Bus und Zug die Zwischenhalte aufklappen – mit Uhrzeit, Verspätung und Steig.
