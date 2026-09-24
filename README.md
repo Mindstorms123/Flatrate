@@ -32,6 +32,15 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 - Karte zeigt Fußwege wieder zwischen den geplanten Punkten; optional per Button **„Ab meinem Standort“**.
 - Downloads: `releases/Flatrate-v1.5.0.apk` (Handy), `releases/Flatrate-PixelWatch-v1.5.0.apk` (Uhr). Installiert sich über v1.2+ ohne Datenverlust.
 
+## v1.8.0 – Keine versteckten Verbindungen mehr
+
+- Bei Pendelstrecken mit mehreren Haltestellen wurden Verbindungen bisher ausgeblendet, wenn eine andere auf dem Papier „besser" wirkte – dabei gingen teils genau die gewünschten Verbindungen verloren (z. B. ein durchgehender Zug ohne Umstieg).
+- Jetzt zeigt die Liste alle unterschiedlichen Verbindungen von allen hinterlegten Haltestellen, sortiert nach Abfahrtszeit. Nur echte Dubletten (gleiche Fahrt, nur eine Haltestelle anders) werden weiter zusammengefasst.
+
+**Downloads:** [Flatrate-v1.8.0.apk (Handy)](releases/Flatrate-v1.8.0.apk) · [Flatrate-PixelWatch-v1.8.0.apk (Uhr)](releases/Flatrate-PixelWatch-v1.8.0.apk) · [Im Browser nutzen](https://mindstorms123.github.io/Flatrate/)
+
+Installiert sich über Version 1.2 oder neuer ohne Datenverlust – Ticket und Einstellungen bleiben erhalten.
+
 ## Neu in v1.7.0 – Fußwege auch in der Übersicht
 
 - Pendelstrecken mit Zuhause/Arbeit-Schule: Die Verbindungsliste zeigt jetzt Start- und Ankunftszeit inklusive Fußweg, „Losgehen in X min“ zählt ab der Haustür.
