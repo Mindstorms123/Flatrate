@@ -2,7 +2,7 @@
 // The whole journey timeline is pre-computed and handed to the service, so the
 // notification keeps updating while the app is closed or the screen is off.
 import { Capacitor, registerPlugin } from "@capacitor/core";
-import { delayMinutes, formatTime, type Journey, type Leg } from "@/lib/transit";
+import { delayMinutes, formatTime, normalizeJourney, type Journey, type Leg } from "@/lib/transit";
 
 export type LiveStep = {
   /** Epoch milliseconds from which this text applies. */
@@ -56,6 +56,10 @@ function timelineLines(journey: Journey, at: number): string[] {
   });
 }
 
+function trackOf(leg: Leg) {
+  return leg.from.track ? `Gl. ${leg.from.track}` : "";
+}
+
 function stepAt(journey: Journey, at: number): LiveStep {
   const legs = journey.legs;
   const arrival = `Ankunft ${formatTime(journey.endTime)}${delayNote(
@@ -71,31 +75,60 @@ function stepAt(journey: Journey, at: number): LiveStep {
   const riding = legs.find(
     (leg) => new Date(leg.from.time).getTime() <= at && new Date(leg.to.time).getTime() > at,
   );
-  const next = legs.find((leg) => new Date(leg.from.time).getTime() > at);
+  // Next vehicle (walks are only the way there).
+  const nextRide = legs.find((leg) => leg.mode !== "WALK" && new Date(leg.from.time).getTime() > at);
+  const rideText = (leg: Leg) => {
+    const track = trackOf(leg);
+    return `${formatTime(leg.from.time)} ${label(leg)}${track ? ` · ${track}` : ""}${delayNote(
+      leg.from.time,
+      leg.from.scheduledTime,
+    )}`;
+  };
+  const rideChip = (leg: Leg) => {
+    const track = trackOf(leg);
+    return track ? `${track} ${formatTime(leg.from.time)}` : `ab ${formatTime(leg.from.time)}`;
+  };
 
-  if (!riding && next) {
-    const track = next.from.track ? ` · Gl. ${next.from.track}` : "";
-    const title = `${formatTime(next.from.time)} ${label(next)}${track}`;
+  // Walking: say where to go and which platform the next vehicle leaves from.
+  if (riding && riding.mode === "WALK") {
+    if (nextRide) {
+      return {
+        at,
+        title: rideText(nextRide),
+        body: `Zu Fuß zu ${nextRide.from.name} (bis ${formatTime(riding.to.time)}) · ${arrival}`,
+        chip: rideChip(nextRide),
+        lines,
+      };
+    }
     return {
       at,
-      title,
-      body: `ab ${next.from.name} · ${arrival}`,
-      chip: `ab ${formatTime(next.from.time)}`,
+      title: `Zu Fuß zum Ziel`,
+      body: `${riding.to.name} · ${arrival}`,
+      chip: `Ziel ${formatTime(riding.to.time)}`,
+      lines,
+    };
+  }
+
+  // Waiting at a stop.
+  if (!riding && nextRide) {
+    return {
+      at,
+      title: rideText(nextRide),
+      body: `ab ${nextRide.from.name} · ${arrival}`,
+      chip: rideChip(nextRide),
       lines,
     };
   }
 
   if (riding) {
-    const rest = next
-      ? `Umstieg ${formatTime(next.from.time)} ${next.from.name}${
-          next.from.track ? ` (Steig ${next.from.track})` : ""
-        }`
+    const after = nextRide
+      ? `Umstieg: ${rideText(nextRide)} ab ${nextRide.from.name}`
       : arrival;
     return {
       at,
       title: `Aus ${formatTime(riding.to.time)} ${riding.to.name}`,
-      body: `${label(riding)} · ${rest}`,
-      chip: `aus ${formatTime(riding.to.time)}`,
+      body: `${label(riding)} · ${after}`,
+      chip: nextRide && trackOf(nextRide) ? `aus ${formatTime(riding.to.time)} → ${trackOf(nextRide)}` : `aus ${formatTime(riding.to.time)}`,
       lines,
     };
   }
@@ -131,7 +164,8 @@ export function liveNotificationSupported() {
 }
 
 /** Starts or refreshes the ongoing notification for this journey. */
-export async function startLiveNotification(journey: Journey) {
+export async function startLiveNotification(input: Journey) {
+  const journey = normalizeJourney(input);
   if (!liveNotificationSupported()) return;
   const steps = buildLiveSteps(journey);
   if (steps.length === 0) return;
