@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,6 +21,11 @@ import java.util.List;
 /** Watch screen: half-circle stage dial; double pinch, tap or crown moves through the stages. */
 public class WatchActivity extends Activity {
     private TripDial dial;
+    private TicketDial ticketDial;
+    private JSONArray tickets = new JSONArray();
+    private int ticketIndex = 0;
+    private boolean showingTicket = false;
+    private float previousBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE;
     private float crown = 0f;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable tick = new Runnable() {
@@ -49,7 +55,8 @@ public class WatchActivity extends Activity {
                 && event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)) {
             crown += -event.getAxisValue(MotionEvent.AXIS_SCROLL);
             if (Math.abs(crown) >= 1f) {
-                dial.step(crown > 0 ? 1 : -1);
+                if (showingTicket) stepTicket(crown > 0 ? 1 : -1);
+                else dial.step(crown > 0 ? 1 : -1);
                 crown = 0f;
             }
             return true;
@@ -59,6 +66,10 @@ public class WatchActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && showingTicket) {
+            closeTicket();
+            return true;
+        }
         switch (keyCode) {
             case KeyEvent.KEYCODE_NAVIGATE_NEXT:
             case KeyEvent.KEYCODE_DPAD_DOWN:
@@ -67,12 +78,12 @@ public class WatchActivity extends Activity {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_STEM_1:
             case KeyEvent.KEYCODE_STEM_2:
-                dial.step(1);
+                if (showingTicket) stepTicket(1); else dial.step(1);
                 return true;
             case KeyEvent.KEYCODE_NAVIGATE_PREVIOUS:
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                dial.step(-1);
+                if (showingTicket) stepTicket(-1); else dial.step(-1);
                 return true;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_HOME:
@@ -80,7 +91,7 @@ public class WatchActivity extends Activity {
             case KeyEvent.KEYCODE_STEM_PRIMARY:
                 return super.onKeyDown(keyCode, event);
             default:
-                dial.step(1);
+                if (showingTicket) stepTicket(1); else dial.step(1);
                 return true;
         }
     }
@@ -101,7 +112,9 @@ public class WatchActivity extends Activity {
             java.lang.reflect.Method getAction = eventClass.getMethod("getAction");
             gestureListener = event -> {
                 try {
-                    if ((int) getAction.invoke(event) == primary) runOnUiThread(() -> dial.step(1));
+                    if ((int) getAction.invoke(event) == primary) runOnUiThread(() -> {
+                        if (showingTicket) stepTicket(1); else dial.step(1);
+                    });
                 } catch (Exception ignored) {}
             };
             mgrClass.getMethod("addGestureEventListener", int[].class, android.view.Window.class,
@@ -114,6 +127,7 @@ public class WatchActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        restoreBrightness();
         try {
             if (gestureManager != null && gestureListener != null) {
                 gestureManager.getClass().getMethod("removeGestureEventListener", java.util.function.Consumer.class)
@@ -126,7 +140,7 @@ public class WatchActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        dial.requestFocus();
+        if (showingTicket && ticketDial != null) ticketDial.requestFocus(); else dial.requestFocus();
         handler.post(tick);
     }
 
@@ -136,8 +150,56 @@ public class WatchActivity extends Activity {
         handler.removeCallbacks(tick);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!isChangingConfigurations()) finish();
+    }
+
+    private void openTicket() {
+        if (tickets.length() == 0) return;
+        showingTicket = true;
+        ticketDial = new TicketDial(this);
+        JSONObject ticket = tickets.optJSONObject(ticketIndex);
+        if (ticket != null) ticketDial.setTicket(ticket);
+        ticketDial.setOnClickListener(v -> stepTicket(1));
+        previousBrightness = getWindow().getAttributes().screenBrightness;
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+        getWindow().setAttributes(params);
+        setContentView(ticketDial);
+        ticketDial.requestFocus();
+    }
+
+    private void closeTicket() {
+        showingTicket = false;
+        restoreBrightness();
+        setContentView(dial);
+        dial.requestFocus();
+    }
+
+    private void restoreBrightness() {
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.screenBrightness = previousBrightness;
+        getWindow().setAttributes(params);
+    }
+
+    private void stepTicket(int delta) {
+        if (tickets.length() == 0 || ticketDial == null) return;
+        ticketIndex = ((ticketIndex + delta) % tickets.length() + tickets.length()) % tickets.length();
+        JSONObject ticket = tickets.optJSONObject(ticketIndex);
+        if (ticket != null) ticketDial.setTicket(ticket);
+        ticketDial.performHapticFeedback(android.view.HapticFeedbackConstants.SEGMENT_TICK);
+    }
+
     private void render() {
         SharedPreferences prefs = getSharedPreferences(WatchTripNotification.PREFS, MODE_PRIVATE);
+        try {
+            tickets = new JSONArray(prefs.getString("tickets", "[]"));
+        } catch (Exception ignored) {
+            tickets = new JSONArray();
+        }
+        dial.setTicketAction(tickets.length() > 0, this::openTicket);
         String raw = prefs.getString("steps", null);
         long startsAt = prefs.getLong("startsAt", 0L);
         long endsAt = prefs.getLong("endsAt", 0L);

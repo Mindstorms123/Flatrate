@@ -39,6 +39,8 @@ public class TripDial extends View {
     private String title = "";
     private String body = "";
     private String remaining = "";
+    private boolean ticketAvailable = false;
+    private Runnable ticketClick;
 
     public TripDial(Context context) {
         super(context);
@@ -78,6 +80,28 @@ public class TripDial extends View {
     int currentIndex() {
         for (int i = 0; i < stages.size(); i += 1) if (stages.get(i).state != '✓') return i;
         return Math.max(0, stages.size() - 1);
+    }
+
+    void setTicketAction(boolean available, Runnable action) {
+        ticketAvailable = available;
+        ticketClick = action;
+        invalidate();
+    }
+
+    @Override
+    public boolean onTouchEvent(android.view.MotionEvent event) {
+        if (event.getAction() == android.view.MotionEvent.ACTION_UP
+                && ticketAvailable && event.getY() > getHeight() - 48 * d()) {
+            if (ticketClick != null) ticketClick.run();
+            return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
 
     /** Next stage; wraps back to the current one after the last. */
@@ -144,7 +168,12 @@ public class TripDial extends View {
         float each = (sweep - gap * (n - 1)) / n;
         for (int i = 0; i < stages.size(); i += 1) {
             Stage s = stages.get(i);
-            int color = s.state == '✓' ? 0xFF334155 : s.state == '▶' ? 0xFF0EA5A4 : 0xFF1E3A5F;
+            boolean current = i == currentIndex();
+            boolean selected = i == viewed;
+            int color;
+            if (current) color = selected ? 0xFF0EA5A4 : 0xFF256B6A;
+            else if (selected) color = 0xFF64748B;
+            else color = s.state == '✓' ? 0xFF334155 : 0xFF1E3A5F;
             float emphasis = Math.max(0f, 1f - Math.abs(shownFocus - i));
             arc.setColor(color);
             arc.setStrokeWidth((6 + 5 * emphasis) * d);
@@ -207,7 +236,12 @@ public class TripDial extends View {
             dot.setColor(i == viewed ? 0xFFFFFFFF : 0xFF475569);
             canvas.drawCircle(dx + i * spacing, dotsY, (i == viewed ? 3.5f : 2.5f) * d, dot);
         }
-        if (!stages.isEmpty()) {
+        if (ticketAvailable) {
+            meta.setColor(0xFFF5C542);
+            meta.setAlpha(255);
+            meta.setTextSize(11 * d);
+            canvas.drawText("▣  Ticket", w / 2f, h - 10 * d, meta);
+        } else if (!stages.isEmpty()) {
             meta.setColor(0xFF94A3B8);
             meta.setAlpha(220);
             meta.setTextSize(10 * d);

@@ -11,7 +11,18 @@ public class WatchTripListener extends WearableListenerService {
     @Override
     public void onDataChanged(DataEventBuffer events) {
         for (DataEvent event : events) {
-            if (!"/flatrate/trip".equals(event.getDataItem().getUri().getPath())) continue;
+            String path = event.getDataItem().getUri().getPath();
+            if ("/flatrate/tickets".equals(path)) {
+                if (event.getType() == DataEvent.TYPE_DELETED) {
+                    getSharedPreferences(WatchTripNotification.PREFS, MODE_PRIVATE).edit().remove("tickets").apply();
+                } else {
+                    DataMap tickets = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
+                    getSharedPreferences(WatchTripNotification.PREFS, MODE_PRIVATE).edit()
+                            .putString("tickets", tickets.getString("tickets", "[]")).apply();
+                }
+                continue;
+            }
+            if (!"/flatrate/trip".equals(path)) continue;
             if (event.getType() == DataEvent.TYPE_DELETED) {
                 WatchTripNotification.cancel(this);
                 continue;

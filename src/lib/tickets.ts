@@ -1,4 +1,5 @@
 import { unzipSync, strFromU8 } from "fflate";
+import { syncTicketsToWatch } from "@/lib/watch-tickets";
 
 export type TicketKind = "dticket" | "semester" | "other";
 
@@ -45,6 +46,7 @@ export function saveTickets(tickets: StoredTicket[]): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(KEY, JSON.stringify(tickets));
   window.dispatchEvent(new Event(TICKETS_CHANGED_EVENT));
+  void syncTicketsToWatch(tickets);
 }
 
 export function bytesToBase64(bytes: Uint8Array): string {

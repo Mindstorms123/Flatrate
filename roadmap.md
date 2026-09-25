@@ -40,3 +40,4 @@
 
 - [x] Feste App-Signatur (android/flatrate-signing.keystore): neue Versionen installieren als Update, Tickets/Strecken/Einstellungen bleiben erhalten; zusätzlich Sicherung/Wiederherstellung als JSON auf der Ticketseite
 - [x] Ticketcode ausschließlich aus den geprüften Wallet-Bytes anzeigen; Bildschirm nur in der großen Codeansicht vorübergehend auf volle Helligkeit setzen
+- [x] Uhr: Beim Wegdrehen sofort schließen; lokal importierte PKPASS-Tickets mit Code und temporärer Maximalhelligkeit anzeigen; aktuellen Reiseschritt dauerhaft farblich markieren; Android/Wear als Version 1.14.0 veröffentlichen.

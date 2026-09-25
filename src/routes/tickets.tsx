@@ -107,6 +107,7 @@ function Tickets() {
   useEffect(() => {
     const stored = loadTickets();
     setTickets(stored);
+    saveTickets(stored);
     if (stored.length === 0) setAddOpen(true);
   }, []);
 

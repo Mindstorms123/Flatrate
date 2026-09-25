@@ -25,4 +25,15 @@ final class WatchSync {
             // No watch or no Play services – the phone notification still works.
         }
     }
+
+    static void sendTickets(Context context, String tickets) {
+        try {
+            PutDataMapRequest map = PutDataMapRequest.create("/flatrate/tickets");
+            map.getDataMap().putString("tickets", tickets == null ? "[]" : tickets);
+            map.getDataMap().putLong("sentAt", System.currentTimeMillis());
+            Wearable.getDataClient(context).putDataItem(map.asPutDataRequest());
+        } catch (Exception ignored) {
+            // No compatible watch is paired.
+        }
+    }
 }
