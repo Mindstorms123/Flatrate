@@ -9,6 +9,8 @@ export type LiveStep = {
   at: number;
   title: string;
   body: string;
+  /** Very short watch-face / status-chip text, e.g. "ab 8:42". */
+  chip: string;
   lines: string[];
 };
 
@@ -63,7 +65,7 @@ function stepAt(journey: Journey, at: number): LiveStep {
   const lines = timelineLines(journey, at);
 
   if (at >= new Date(journey.endTime).getTime()) {
-    return { at, title: "Angekommen", body: `Ziel ${legs.at(-1)?.to.name ?? ""}`, lines };
+    return { at, title: "Angekommen", body: `Ziel ${legs.at(-1)?.to.name ?? ""}`, chip: "Ziel", lines };
   }
 
   const riding = legs.find(
@@ -72,15 +74,13 @@ function stepAt(journey: Journey, at: number): LiveStep {
   const next = legs.find((leg) => new Date(leg.from.time).getTime() > at);
 
   if (!riding && next) {
-    const track = next.from.track ? ` · Steig ${next.from.track}` : "";
-    const title =
-      at < new Date(journey.startTime).getTime()
-        ? `Losgehen bis ${formatTime(next.from.time)}`
-        : `Umsteigen in ${next.from.name}`;
+    const track = next.from.track ? ` · Gl. ${next.from.track}` : "";
+    const title = `${formatTime(next.from.time)} ${label(next)}${track}`;
     return {
       at,
       title,
-      body: `${label(next)} ab ${next.from.name} ${formatTime(next.from.time)}${track} · ${arrival}`,
+      body: `ab ${next.from.name} · ${arrival}`,
+      chip: `ab ${formatTime(next.from.time)}`,
       lines,
     };
   }
@@ -93,13 +93,14 @@ function stepAt(journey: Journey, at: number): LiveStep {
       : arrival;
     return {
       at,
-      title: `${label(riding)} → ${riding.to.name}`,
-      body: `Aussteigen ${formatTime(riding.to.time)} · ${rest}`,
+      title: `Aus ${formatTime(riding.to.time)} ${riding.to.name}`,
+      body: `${label(riding)} · ${rest}`,
+      chip: `aus ${formatTime(riding.to.time)}`,
       lines,
     };
   }
 
-  return { at, title: "Reise läuft", body: arrival, lines };
+  return { at, title: "Reise läuft", body: arrival, chip: "Live", lines };
 }
 
 /** Builds every moment at which the notification text has to change. */
