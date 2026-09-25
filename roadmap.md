@@ -39,3 +39,4 @@
 - [x] Android: dauerhafte Live-Benachrichtigung (Foreground-Service) mit Reiseverlauf, Umstiegen und Steigen; läuft im Hintergrund, bei geschlossener App und Display aus, spiegelt auf Smartwatch; Routine-Erinnerungen (Losgehen/Einsteigen) dort abgeschaltet
 
 - [x] Feste App-Signatur (android/flatrate-signing.keystore): neue Versionen installieren als Update, Tickets/Strecken/Einstellungen bleiben erhalten; zusätzlich Sicherung/Wiederherstellung als JSON auf der Ticketseite
+- [x] Ticketcode ausschließlich aus den geprüften Wallet-Bytes anzeigen; Bildschirm nur in der großen Codeansicht vorübergehend auf volle Helligkeit setzen
