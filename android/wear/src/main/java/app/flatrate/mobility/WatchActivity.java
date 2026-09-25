@@ -37,6 +37,7 @@ public class WatchActivity extends Activity {
         dial.setHapticFeedbackEnabled(true);
         setContentView(dial);
         dial.requestFocus();
+        subscribeDoublePinch();
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[] { Manifest.permission.POST_NOTIFICATIONS }, 1);
         }
@@ -82,6 +83,44 @@ public class WatchActivity extends Activity {
                 dial.step(1);
                 return true;
         }
+    }
+
+    private Object gestureManager;
+    private java.util.function.Consumer<Object> gestureListener;
+
+    /** Wear OS 7 one-handed gestures: double pinch = primary action = next stage. Loaded by reflection so older watches just skip it. */
+    private void subscribeDoublePinch() {
+        try {
+            Class<?> sdk = Class.forName("com.google.wear.Sdk");
+            Class<?> mgrClass = Class.forName("com.google.wear.input.GestureInputManager");
+            Class<?> eventClass = Class.forName("com.google.wear.input.GestureEvent");
+            gestureManager = sdk.getMethod("getWearManager", android.content.Context.class, Class.class)
+                    .invoke(null, this, mgrClass);
+            if (gestureManager == null) return;
+            int primary = eventClass.getField("ACTION_PRIMARY").getInt(null);
+            java.lang.reflect.Method getAction = eventClass.getMethod("getAction");
+            gestureListener = event -> {
+                try {
+                    if ((int) getAction.invoke(event) == primary) runOnUiThread(() -> dial.step(1));
+                } catch (Exception ignored) {}
+            };
+            mgrClass.getMethod("addGestureEventListener", int[].class, android.view.Window.class,
+                    java.util.concurrent.Executor.class, java.util.function.Consumer.class)
+                    .invoke(gestureManager, new int[] { primary }, getWindow(), getMainExecutor(), gestureListener);
+        } catch (Throwable ignored) {
+            // Watch without Wear OS 7 gestures – tap and crown still work.
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        try {
+            if (gestureManager != null && gestureListener != null) {
+                gestureManager.getClass().getMethod("removeGestureEventListener", java.util.function.Consumer.class)
+                        .invoke(gestureManager, gestureListener);
+            }
+        } catch (Throwable ignored) {}
+        super.onDestroy();
     }
 
     @Override
