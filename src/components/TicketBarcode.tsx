@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import bwipjs from "bwip-js/browser";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
-import { base64ToBytes, bytesToBinaryText, messageToBytes, type StoredTicket } from "@/lib/tickets";
+import { base64ToBytes, bytesToBinaryText, type StoredTicket } from "@/lib/tickets";
 
 const BARCODE_TYPE: Record<string, string> = {
   QR: "qrcode",
@@ -11,25 +9,14 @@ const BARCODE_TYPE: Record<string, string> = {
   Code128: "code128",
 };
 
-type Variant = { label: string; hint: string };
-
-const VARIANTS: Variant[] = [
-  { label: "Original (Wallet)", hint: "Exakt die Bytes aus der Wallet-Datei." },
-  { label: "Variante 2", hint: "Text als UTF-8 kodiert." },
-  { label: "Variante 3", hint: "Text ohne Byte-Modus (Standardkodierung)." },
-];
-
 export function TicketBarcode({
   ticket,
   large = false,
-  showSwitch = true,
 }: {
   ticket: StoredTicket;
   large?: boolean;
-  showSwitch?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [variant, setVariant] = useState(0);
   const [failed, setFailed] = useState(false);
   const message = ticket.barcodeMessage ?? "";
 
@@ -44,55 +31,34 @@ export function TicketBarcode({
       backgroundcolor: "FFFFFF",
     } as const;
 
-    const exactBytes = ticket.barcodeBytes
-      ? base64ToBytes(ticket.barcodeBytes)
-      : messageToBytes(message, ticket.barcodeEncoding);
-
-    const attempts = [
-      { ...base, text: bytesToBinaryText(exactBytes), binarytext: true },
-      { ...base, text: bytesToBinaryText(new TextEncoder().encode(message)), binarytext: true },
-      { ...base, text: message },
-    ];
-    const order = [attempts[variant]!, ...attempts.filter((_, i) => i !== variant)];
-
-    for (const options of order) {
-      try {
-        bwipjs.toCanvas(canvas, options as never);
-        setFailed(false);
-        return;
-      } catch {
-        // try the next encoding
-      }
+    if (!ticket.barcodeBytes) {
+      setFailed(true);
+      return;
     }
-    setFailed(true);
-  }, [large, message, ticket.barcodeBytes, ticket.barcodeEncoding, ticket.barcodeFormat, variant]);
+
+    try {
+      bwipjs.toCanvas(canvas, {
+        ...base,
+        text: bytesToBinaryText(base64ToBytes(ticket.barcodeBytes)),
+        binarytext: true,
+      } as never);
+      setFailed(false);
+    } catch {
+      setFailed(true);
+    }
+  }, [large, message, ticket.barcodeBytes, ticket.barcodeFormat]);
 
   if (!message) return null;
-  if (failed) return <p className="text-sm text-destructive">Dieser Ticketcode konnte nicht angezeigt werden.</p>;
+  if (failed) return <p className="text-sm text-destructive">Bitte importiere die Wallet-Datei erneut, damit der Originalcode angezeigt werden kann.</p>;
 
   return (
-    <div className="space-y-2">
+    <div>
       <canvas
         ref={canvasRef}
         aria-label="Ticket-Code"
         role="img"
         className={large ? "mx-auto max-h-[70vh] max-w-full bg-white" : "mx-auto max-h-80 max-w-full bg-white"}
       />
-      {showSwitch && (
-        <div className="flex flex-wrap items-center justify-center gap-2 text-center">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setVariant((v) => (v + 1) % VARIANTS.length)}
-          >
-            <RefreshCw size={14} /> Code lässt sich nicht scannen?
-          </Button>
-          <span className="text-[0.7rem] opacity-70">
-            {VARIANTS[variant]!.label} · {VARIANTS[variant]!.hint}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
