@@ -344,7 +344,7 @@ function shift(iso: string, ms: number): string {
  * the planner response, so this keeps later legs current as well.
  */
 export function applyLegUpdates(journey: Journey, updates: LegUpdate[]): Journey {
-  if (updates.length === 0) return journey;
+  if (updates.length === 0) return normalizeJourney(journey);
   const byIndex = new Map(updates.map((u) => [u.index, u]));
   const legs = journey.legs.map((leg, i) => {
     const u = byIndex.get(i);
@@ -352,7 +352,7 @@ export function applyLegUpdates(journey: Journey, updates: LegUpdate[]): Journey
     const delay = new Date(u.departure).getTime() - new Date(leg.from.scheduledTime).getTime();
     const arrival =
       u.arrival ?? (delay > 0 ? shift(leg.to.scheduledTime, delay) : leg.to.time);
-    return {
+    return propagateStopDelays({
       ...leg,
       realTime: u.realTime || leg.realTime,
       cancelled: u.cancelled || leg.cancelled,
@@ -362,7 +362,51 @@ export function applyLegUpdates(journey: Journey, updates: LegUpdate[]): Journey
         ...(u.track ? { track: u.track } : {}),
       },
       to: { ...leg.to, time: arrival },
-    };
+    });
+  });
+  return normalizeJourney({ ...journey, legs });
+}
+
+/** Carries a ride's delay into its intermediate stops (interpolated from departure to arrival delay). */
+export function propagateStopDelays(leg: Leg): Leg {
+  const stops = leg.intermediate;
+  if (!stops || stops.length === 0 || leg.mode === "WALK") return leg;
+  const dep = new Date(leg.from.time).getTime() - new Date(leg.from.scheduledTime).getTime();
+  const arr = new Date(leg.to.time).getTime() - new Date(leg.to.scheduledTime).getTime();
+  if (dep <= 0 && arr <= 0) return leg;
+  const n = stops.length + 1;
+  return {
+    ...leg,
+    intermediate: stops.map((s, i) => {
+      const own = new Date(s.time).getTime() - new Date(s.scheduledTime).getTime();
+      const expected = Math.round(dep + ((arr - dep) * (i + 1)) / n);
+      return expected > own ? { ...s, time: shift(s.scheduledTime, expected) } : s;
+    }),
+  };
+}
+
+/**
+ * Keeps the timeline consistent after delays: a walk never starts before the
+ * previous ride arrives, and intermediate stops follow the ride's delay.
+ */
+export function normalizeJourney(journey: Journey): Journey {
+  const legs: Leg[] = [];
+  journey.legs.forEach((raw) => {
+    let leg = propagateStopDelays(raw);
+    const prev = legs.at(-1);
+    if (prev && leg.mode === "WALK") {
+      const prevEnd = new Date(prev.to.time).getTime();
+      const start = new Date(leg.from.time).getTime();
+      if (prevEnd > start) {
+        const ms = prevEnd - start;
+        leg = {
+          ...leg,
+          from: { ...leg.from, time: shift(leg.from.time, ms) },
+          to: { ...leg.to, time: shift(leg.to.time, ms) },
+        };
+      }
+    }
+    legs.push(leg);
   });
   const last = legs.at(-1);
   return {
