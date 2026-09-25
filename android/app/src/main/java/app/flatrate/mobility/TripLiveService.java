@@ -134,7 +134,7 @@ public class TripLiveService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         if (Build.VERSION.SDK_INT >= 36) {
-            return buildLiveUpdate(title, body, contentIntent);
+            return buildLiveUpdate(step, title, body, contentIntent);
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -167,7 +167,7 @@ public class TripLiveService extends Service {
     }
 
     /** Android 16's native progress-centric, promotable Live Update. */
-    private Notification buildLiveUpdate(String title, String body, PendingIntent contentIntent) {
+    private Notification buildLiveUpdate(JSONObject step, String title, String body, PendingIntent contentIntent) {
         Notification.ProgressStyle style = new Notification.ProgressStyle()
                 .setStyledByProgress(true)
                 .setProgressStartIcon(Icon.createWithResource(this, R.drawable.ic_trip_start))
@@ -214,7 +214,7 @@ public class TripLiveService extends Service {
                 .setCategory(Notification.CATEGORY_NAVIGATION)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .addExtras(liveUpdateExtras)
-                .setShortCriticalText(criticalText())
+                .setShortCriticalText(chipText(step))
                 .setWhen(endsAt > 0 ? endsAt : System.currentTimeMillis())
                 .setShowWhen(true);
         return builder.build();
@@ -235,6 +235,11 @@ public class TripLiveService extends Service {
         if (endsAt <= startsAt) return 0;
         double ratio = (double) (System.currentTimeMillis() - startsAt) / (double) (endsAt - startsAt);
         return (int) Math.max(0, Math.min(max, Math.round(ratio * max)));
+    }
+
+    private String chipText(JSONObject step) {
+        String chip = step == null ? "" : step.optString("chip", "");
+        return chip.isEmpty() ? criticalText() : chip;
     }
 
     private String criticalText() {
