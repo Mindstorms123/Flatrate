@@ -105,7 +105,9 @@ function ImpressumPage() {
 
       <Section title="Urheberrecht">
         <p>
-          Der Quelltext der App ist unter der MIT-Lizenz veröffentlicht. Fahrplandaten unterliegen den
+          Der Quelltext der App ist unter der Lizenz Creative Commons BY-NC 4.0 (Namensnennung, nicht
+          kommerziell) veröffentlicht; eine kommerzielle Nutzung ist ohne Zustimmung nicht erlaubt. Frühere
+          Angaben einer MIT-Lizenz in älteren Versionen waren ein Versehen. Fahrplandaten unterliegen den
           Nutzungsbedingungen der jeweiligen Datenquellen (Transitous, DELFI e.V., Verkehrsverbünde).
         </p>
       </Section>
