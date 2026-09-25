@@ -16,6 +16,7 @@ import {
 } from "@/lib/tickets";
 import { downloadPass } from "@/lib/tickets.functions";
 import { openTicketProvider } from "@/lib/ticket-browser";
+import { maximizeTicketBrightness, restoreTicketBrightness } from "@/lib/screen-brightness";
 import { onLaunchFiles, takeSharedPass, type IncomingPass } from "@/lib/pwa";
 import { TicketBarcode } from "@/components/TicketBarcode";
 import { Button } from "@/components/ui/button";
@@ -108,6 +109,14 @@ function Tickets() {
     setTickets(stored);
     if (stored.length === 0) setAddOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (!enlargedTicket) return;
+    void maximizeTicketBrightness();
+    return () => {
+      void restoreTicketBrightness();
+    };
+  }, [enlargedTicket]);
 
 
   const persist = (next: StoredTicket[]) => {
