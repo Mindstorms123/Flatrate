@@ -52,7 +52,8 @@ public final class WatchTripNotification {
             double ratio = (double) (System.currentTimeMillis() - startsAt) / (double) (endsAt - startsAt);
             now = (int) Math.max(0, Math.min(max, Math.round(ratio * max)));
         }
-        String critical = criticalText(endsAt);
+        String chip = step == null ? "" : step.optString("chip", "");
+        String critical = chip.isEmpty() ? criticalText(endsAt) : chip;
 
         // Kept deliberately simple: promoted/critical-text flags crash the watch's notification shade.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
@@ -85,8 +86,8 @@ public final class WatchTripNotification {
     /** Short chip text: remaining time plus where to go next. */
     static String statusText(String critical, String title, String body) {
         String next = title == null ? "" : title;
-        if (next.length() > 28) next = next.substring(0, 27) + "…";
-        return critical + " · " + next;
+        if (next.length() > 18) next = next.substring(0, 17) + "…";
+        return next;
     }
 
     static void cancel(Context context) {
