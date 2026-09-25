@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(TicketBrowserPlugin.class);
         registerPlugin(TripLivePlugin.class);
+        registerPlugin(ScreenBrightnessPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }
