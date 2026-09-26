@@ -12,7 +12,7 @@ OpenStreetMap-Basis und das eigene Wallet-Ticket offline dabei.
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iPhone%20%7C%20Web-informational)
 ![Made with](https://img.shields.io/badge/Made%20with-React%20%2B%20TanStack%20Start%20%2B%20Capacitor-blue)
 
-[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.5.0.apk) · [Pixel-Watch-App](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-PixelWatch-v1.5.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
+[Android-APK herunterladen](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-v1.14.0.apk) · [Pixel-Watch-App](https://github.com/Mindstorms123/Flatrate/raw/main/releases/Flatrate-PixelWatch-v1.14.0.apk) · [Web-App öffnen](https://mindstorms123.github.io/Flatrate/) · [Installieren](#installieren) · [Funktionen](#funktionen) · [Screenshots](#screenshots) · [Selbst bauen](#selbst-bauen)
 
 </div>
 
